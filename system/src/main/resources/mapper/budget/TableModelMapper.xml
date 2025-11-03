@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.TableModelMapper">
+
+    <resultMap type="TableModel" id="TableModelResult">
+            <result property="id"    column="id"    />
+            <result property="itemId"    column="item_id"    />
+            <result property="tableName"    column="table_name"    />
+            <result property="fieldName"    column="field_name"    />
+            <result property="type"    column="type"    />
+            <result property="fieldDisplayName"    column="field_display_name"    />
+            <result property="fieldType"    column="field_type"    />
+            <result property="fieldLength"    column="field_length"    />
+            <result property="fieldDecimalLength"    column="field_decimal_length"    />
+            <result property="dictId"    column="dict_id"    />
+            <result property="fieldRequired"    column="field_required"    />
+            <result property="fieldDisplay"    column="field_display"    />
+            <result property="fieldQuery"    column="field_query"    />
+            <result property="fieldQuery"    column="field_query"    />
+            <result property="orderNum"    column="order_num"    />
+            <result property="delFlag"    column="del_flag"    />
+            <result property="createBy"    column="create_by"    />
+            <result property="createTime"    column="create_time"    />
+            <result property="updateBy"    column="update_by"    />
+            <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectTableModelVo">
+        SELECT t.id,t.item_id,t.table_name,'extension' sourceTable,t.field_name,t.type,t.field_display_name,t.field_type,t.field_length,t.field_decimal_length,t.dict_id,t.field_required,t.field_display,t.field_query,t.order_num,t.del_flag,t.create_by,t.create_time,t.update_by,t.update_time,dt.dict_type as dictType
+        FROM  t_table_model t  LEFT JOIN sys_dict_type dt on dt.dict_id = t.dict_id
+    </sql>
+
+    <select id="selectTableModelList" parameterType="TableModel" resultMap="TableModelResult">
+        <include refid="selectTableModelVo"/>
+        where t.del_flag = "0"
+        <if test="type != null "> and t.type = #{type}</if>
+        <if test="itemId != null "> and t.item_id = #{itemId}</if>
+        <if test="tableName != null  and tableName != ''"> and t.table_name = #{tableName} </if>
+        <if test="fieldType != null "> and t.field_type = #{fieldType}</if>
+        <if test="fieldLength != null "> and t.field_length = #{fieldLength}</if>
+        <if test="fieldDecimalLength != null "> and t.field_decimal_length = #{fieldDecimalLength}</if>
+        <if test="fieldRequired != null "> and t.field_required = #{fieldRequired}</if>
+        <if test="fieldDisplay != null "> and t.field_display = #{fieldDisplay}</if>
+         order by t.order_num
+    </select>
+
+    <select id="selectTableModelById" parameterType="Long" resultMap="TableModelResult">
+            <include refid="selectTableModelVo"/>
+            where t.id = #{id} and t.del_flag = "0"
+    </select>
+
+    <select id="selectIndex" resultType="java.lang.Integer">
+        SELECT COUNT(id) FROM `t_table_model` where table_name = #{tableName}
+    </select>
+
+    <select id="selectTableModelListByItem" resultMap="TableModelResult">
+        <include refid="selectTableModelVo"/>
+        where t.del_flag = "0" and t.type = 2 and t.item_id = #{itemId} order by t.order_num
+    </select>
+
+    <insert id="insertTableModel" parameterType="TableModel" useGeneratedKeys="true" keyProperty="id">
+        insert into t_table_model
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="itemId != null">item_id,</if>
+            <if test="tableName != null">table_name,</if>
+            <if test="fieldName != null">field_name,</if>
+            <if test="type != null">type,</if>
+            <if test="fieldDisplayName != null">field_display_name,</if>
+            <if test="fieldType != null">field_type,</if>
+            <if test="fieldLength != null">field_length,</if>
+            <if test="fieldDecimalLength != null">field_decimal_length,</if>
+            <if test="dictId != null">dict_id,</if>
+            <if test="fieldRequired != null">field_required,</if>
+            <if test="fieldDisplay != null">field_display,</if>
+            <if test="fieldQuery != null">field_query,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="itemId != null">#{itemId},</if>
+            <if test="tableName != null">#{tableName},</if>
+            <if test="fieldName != null">#{fieldName},</if>
+            <if test="type != null">#{type},</if>
+            <if test="fieldDisplayName != null">#{fieldDisplayName},</if>
+            <if test="fieldType != null">#{fieldType},</if>
+            <if test="fieldLength != null">#{fieldLength},</if>
+            <if test="fieldDecimalLength != null">#{fieldDecimalLength},</if>
+            <if test="dictId != null">#{dictId},</if>
+            <if test="fieldRequired != null">#{fieldRequired},</if>
+            <if test="fieldDisplay != null">#{fieldDisplay},</if>
+            <if test="fieldQuery != null">#{fieldQuery},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableModel" parameterType="TableModel">
+        update t_table_model
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fieldDisplayName != null">field_display_name = #{fieldDisplayName},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="fieldType != null">field_type = #{fieldType},</if>
+            <if test="fieldLength != null">field_length = #{fieldLength},</if>
+            field_decimal_length = #{fieldDecimalLength},
+            <if test="dictId != null">dict_id = #{dictId},</if>
+            <if test="fieldRequired != null">field_required = #{fieldRequired},</if>
+            <if test="fieldDisplay != null">field_display = #{fieldDisplay},</if>
+            <if test="fieldQuery != null">field_query = #{fieldQuery},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableModelByIds" parameterType="String">
+        UPDATE t_table_model
+        SET del_flag = '2', update_by = #{userName}, update_time = SYSDATE()
+        WHERE type !=1 and id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteTableModelById">
+        UPDATE t_table_model
+        SET del_flag = '2', update_by = #{userName}, update_time = SYSDATE()
+        WHERE id = #{id} and type !=1
+    </delete>
+</mapper>

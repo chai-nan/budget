@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.ReportingTaskMapper">
+
+    <resultMap type="ReportingTask" id="ReportingTaskResult">
+        <result property="id"    column="id"    />
+        <result property="lastTask"    column="last_task"    />
+        <result property="year"    column="year"    />
+        <result property="budgetYear"    column="budget_year"    />
+        <result property="name"    column="name"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="reportingExplain"    column="reporting_explain"    />
+        <result property="completionStatus"    column="completion_status"    />
+        <result property="auditStatus"    column="audit_status"    />
+        <result property="auditExplain"    column="audit_explain"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectReportingTaskVo">
+        SELECT t.id,t.last_task,t.year,t.budget_year,t.NAME,t.start_time,t.end_time,t.reporting_explain,t.completion_status,t.audit_status,t.audit_explain,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,    COALESCE((SELECT id FROM t_reporting_task WHERE last_task = t.id and del_flag = '0' ORDER BY id DESC LIMIT 1), NULL) AS newTask
+        FROM t_reporting_task t
+    </sql>
+
+    <select id="selectReportingTaskList" parameterType="ReportingTask" resultMap="ReportingTaskResult">
+        <include refid="selectReportingTaskVo"/>
+        where t.del_flag = "0"
+        <if test="year != null  and year != ''"> and t.year = #{year}</if>
+        <if test="budgetYear != null  and budgetYear != ''"> and t.budget_year = #{budgetYear}</if>
+        <if test="lastTask != null  and lastTask != ''"> and t.last_task = #{lastTask}</if>
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="startTime != null "> and t.start_time = #{startTime}</if>
+        <if test="endTime != null "> and t.end_time = #{endTime}</if>
+        <if test="reportingExplain != null  and reportingExplain != ''"> and t.reporting_explain = #{reportingExplain}</if>
+        <if test="completionStatus != null "> and t.completion_status = #{completionStatus}</if>
+        <if test="auditStatus != null "> and t.audit_status = #{auditStatus}</if>
+        <if test="auditExplain != null  and auditExplain != ''"> and t.audit_explain = #{auditExplain}</if>
+        order by t.completion_status,t.start_time desc
+    </select>
+
+    <select id="selectReportingTaskById" parameterType="Long" resultMap="ReportingTaskResult">
+        <include refid="selectReportingTaskVo"/>
+        where t.id = #{id} and del_flag = "0"
+    </select>
+
+    <select id="selectTips" resultType="java.lang.Integer">
+        select count(1) from t_task_tips where task_id = #{taskId} and user_id = #{userId}
+    </select>
+
+    <select id="getLast" resultMap="ReportingTaskResult">
+        SELECT * FROM `t_reporting_task` where del_flag = 0 ORDER BY create_time desc LIMIT 1
+    </select>
+
+    <insert id="insertReportingTask" parameterType="ReportingTask" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_task
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="year != null">year,</if>
+            <if test="budgetYear != null">budget_year,</if>
+            <if test="lastTask != null">last_task,</if>
+            <if test="name != null">name,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="reportingExplain != null">reporting_explain,</if>
+            <if test="completionStatus != null">completion_status,</if>
+            <if test="auditStatus != null">audit_status,</if>
+            <if test="auditExplain != null">audit_explain,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="year != null">#{year},</if>
+            <if test="budgetYear != null">#{budgetYear},</if>
+            <if test="lastTask != null">#{lastTask},</if>
+            <if test="name != null">#{name},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="reportingExplain != null">#{reportingExplain},</if>
+            <if test="completionStatus != null">#{completionStatus},</if>
+            <if test="auditStatus != null">#{auditStatus},</if>
+            <if test="auditExplain != null">#{auditExplain},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateReportingTask" parameterType="ReportingTask">
+        update t_reporting_task
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="year != null">year = #{year},</if>
+            <if test="budgetYear != null">budget_year = #{budgetYear},</if>
+            <if test="lastTask != null">last_task = #{lastTask},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="reportingExplain != null">reporting_explain = #{reportingExplain},</if>
+            <if test="completionStatus != null">completion_status = #{completionStatus},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="auditExplain != null">audit_explain = #{auditExplain},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <update id="updateExpireTask">
+        update t_reporting_task set completion_status = 2 where end_time &lt; SYSDATE() and completion_status = 1
+    </update>
+
+    <insert id="updateTips">
+        insert into t_task_tips (task_id, user_id) VALUES (#{taskId}, #{userId})
+    </insert>
+
+    <delete id="deleteReportingTaskByIds" parameterType="String">
+        UPDATE t_reporting_task
+        SET del_flag = '2', update_by = #{userName}, update_time = SYSDATE()
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

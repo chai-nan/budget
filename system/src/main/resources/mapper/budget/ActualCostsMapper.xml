@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.ActualCostsMapper">
+
+    <resultMap type="ActualCosts" id="ActualCostsResult">
+        <result property="id"    column="id"    />
+        <result property="year"    column="year"    />
+        <result property="itemId"    column="item_id"    />
+        <result property="subjectId"    column="subject_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="actualIncurred"    column="actual_incurred"    />
+        <result property="estimatedIncurred"    column="estimated_incurred"    />
+        <result property="bwbdf"    column="bwbdf"    />
+        <result property="slzj"    column="slzj"    />
+        <result property="sljs"    column="sljs"    />
+        <result property="fx"    column="fx"    />
+        <result property="slye"    column="slye"    />
+        <result property="zzrq"    column="zzrq"    />
+        <result property="kjkm"    column="kjkm"    />
+        <result property="kjkmsm"    column="kjkmsm"    />
+        <result property="pzbh"    column="pzbh"    />
+        <result property="ly"    column="ly"    />
+        <result property="rjztsm"    column="rjztsm"    />
+        <result property="zy"    column="zy"    />
+        <result property="bz"    column="bz"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectActualCostsVo">
+        SELECT t.id,t.file_id,t.YEAR,t.item_id,t.subject_id,t.dept_id,t.actual_incurred,t.estimated_incurred,t.bwbdf,t.slzj,t.sljs,t.fx,t.slye,t.zzrq,t.kjkm,t.kjkmsm,t.pzbh,t.ly,t.rjztsm,t.zy,t.bz,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,d.dept_name as deptName,pd.dept_name as deptParentName
+        FROM  t_actual_costs t
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+    </sql>
+
+    <select id="selectActualCostsList" parameterType="ActualCosts" resultMap="ActualCostsResult">
+        <include refid="selectActualCostsVo"/>
+        <where>
+            <if test="fileId != null "> and t.file_id = #{fileId}</if>
+            <if test="year != null "> and t.year = #{year}</if>
+            <if test="itemId != null "> and t.item_id = #{itemId}</if>
+            <if test="subjectId != null "> and t.subject_id = #{subjectId}</if>
+            <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+            <if test="actualIncurred != null "> and t.actual_incurred = #{actualIncurred}</if>
+            <if test="estimatedIncurred != null "> and t.estimated_incurred = #{estimatedIncurred}</if>
+            <if test="bwbdf != null "> and t.bwbdf = #{bwbdf}</if>
+            <if test="slzj != null "> and t.slzj = #{slzj}</if>
+            <if test="sljs != null "> and t.sljs = #{sljs}</if>
+            <if test="fx != null  and fx != ''"> and t.fx = #{fx}</if>
+            <if test="slye != null "> and t.slye = #{slye}</if>
+            <if test="zzrq != null  and zzrq != ''"> and t.zzrq = #{zzrq}</if>
+            <if test="kjkm != null  and kjkm != ''"> and t.kjkm = #{kjkm}</if>
+            <if test="kjkmsm != null  and kjkmsm != ''"> and t.kjkmsm like concat('%', #{kjkmsm}, '%')</if>
+            <if test="pzbh != null  and pzbh != ''"> and t.pzbh = #{pzbh}</if>
+            <if test="ly != null  and ly != ''"> and t.ly = #{ly}</if>
+            <if test="rjztsm != null  and rjztsm != ''"> and t.rjztsm = #{rjztsm}</if>
+            <if test="zy != null  and zy != ''"> and t.zy = #{zy}</if>
+            <if test="bz != null  and bz != ''"> and t.bz = #{bz}</if>
+        </where>
+    </select>
+
+    <select id="selectActualCostsById" parameterType="Long" resultMap="ActualCostsResult">
+        <include refid="selectActualCostsVo"/>
+        where t.id = #{id}
+    </select>
+
+    <select id="selectLast" parameterType="ActualCosts" resultMap="ActualCostsResult">
+        SELECT
+            IFNULL( SUM( t.actual_incurred ), 0 ) - IFNULL( SUM( t.bwbdf ), 0 ) as actual_incurred,
+            SUM(t.estimated_incurred) as estimated_incurred
+        FROM
+            t_actual_costs t
+        where  t.year = #{year}  and t.subject_id = #{subjectId} and t.dept_id = #{deptId}
+    </select>
+
+    <select id="selectActualCostsByOne" resultType="net.cmkj.budget.domain.ActualCosts">
+        <include refid="selectActualCostsVo"/>
+        where  t.year = #{year}  and t.item_id = #{itemId} and t.dept_id = #{deptId} LIMIT 1
+    </select>
+
+    <select id="selectActualCostsCountList" parameterType="ActualCosts" resultMap="ActualCostsResult">
+        SELECT t.dept_id, t.subject_id, SUM(t.actual_incurred) AS actual_incurred, SUM(t.bwbdf) AS bwbdf,  IFNULL(SUM(t.actual_incurred), 0) - IFNULL(SUM(t.bwbdf), 0) AS total
+        FROM  `t_actual_costs` t
+        LEFT JOIN t_actual_costs_file f on f.id = t.file_id
+        WHERE f.del_flag = '0' and t.zzrq IS NOT NULL AND t.subject_id IS NOT NULL AND t.`year` = 2025
+        GROUP BY t.dept_id, t.subject_id
+    </select>
+
+    <select id="selectTotals" resultType="java.util.Map">
+        SELECT t.`year`, t.dept_id, t.subject_id,DATE_FORMAT(t.zzrq, '%m') AS month,SUM(t.actual_incurred) AS actual_incurred, SUM(t.bwbdf) AS bwbdf,  IFNULL(SUM(t.actual_incurred), 0) - IFNULL(SUM(t.bwbdf), 0) AS total
+        FROM  `t_actual_costs` t
+            LEFT JOIN t_actual_costs_file f on f.id = t.file_id
+        WHERE f.del_flag = '0' and  t.zzrq IS NOT NULL and t.subject_id is not NULL and t.`year` = #{budgetYear}
+        GROUP BY t.`year`, t.dept_id, t.subject_id, month
+        UNION ALL
+        SELECT t.`year`, t.dept_id, t.subject_id,'0' AS month,SUM(t.actual_incurred) AS actual_incurred, SUM(t.bwbdf) AS bwbdf ,  IFNULL(SUM(t.actual_incurred), 0) - IFNULL(SUM(t.bwbdf), 0) AS total
+        FROM  `t_actual_costs` t
+            LEFT JOIN t_actual_costs_file f on f.id = t.file_id
+        WHERE f.del_flag = '0' and t.zzrq IS NOT NULL AND t.subject_id IS NOT NULL AND t.`year` = #{budgetYear}
+        GROUP BY t.`year`, t.dept_id, t.subject_id
+        ORDER BY year, dept_id, subject_id, month
+    </select>
+
+    <insert id="insertActualCosts" parameterType="ActualCosts">
+        insert into t_actual_costs
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="fileId != null">file_id,</if>
+            <if test="year != null">year,</if>
+            <if test="itemId != null">item_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="subjectId != null">subject_id,</if>
+            <if test="actualIncurred != null">actual_incurred,</if>
+            <if test="estimatedIncurred != null">estimated_incurred,</if>
+            <if test="bwbdf != null">bwbdf,</if>
+            <if test="slzj != null">slzj,</if>
+            <if test="sljs != null">sljs,</if>
+            <if test="fx != null">fx,</if>
+            <if test="slye != null">slye,</if>
+            <if test="zzrq != null">zzrq,</if>
+            <if test="kjkm != null">kjkm,</if>
+            <if test="kjkmsm != null">kjkmsm,</if>
+            <if test="pzbh != null">pzbh,</if>
+            <if test="ly != null">ly,</if>
+            <if test="rjztsm != null">rjztsm,</if>
+            <if test="zy != null">zy,</if>
+            <if test="bz != null">bz,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null and delFlag != ''">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="fileId != null">#{fileId},</if>
+            <if test="year != null">#{year},</if>
+            <if test="itemId != null">#{itemId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="subjectId != null">#{subjectId},</if>
+            <if test="actualIncurred != null">#{actualIncurred},</if>
+            <if test="estimatedIncurred != null">#{estimatedIncurred},</if>
+            <if test="bwbdf != null">#{bwbdf},</if>
+            <if test="slzj != null">#{slzj},</if>
+            <if test="sljs != null">#{sljs},</if>
+            <if test="fx != null">#{fx},</if>
+            <if test="slye != null">#{slye},</if>
+            <if test="zzrq != null">#{zzrq},</if>
+            <if test="kjkm != null">#{kjkm},</if>
+            <if test="kjkmsm != null">#{kjkmsm},</if>
+            <if test="pzbh != null">#{pzbh},</if>
+            <if test="ly != null">#{ly},</if>
+            <if test="rjztsm != null">#{rjztsm},</if>
+            <if test="zy != null">#{zy},</if>
+            <if test="bz != null">#{bz},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null and delFlag != ''">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateActualCosts" parameterType="ActualCosts">
+        update t_actual_costs
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="year != null">year = #{year},</if>
+            <if test="itemId != null">item_id = #{itemId},</if>
+            <if test="subjectId != null">subject_id = #{subjectId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="actualIncurred != null">actual_incurred = #{actualIncurred},</if>
+            <if test="estimatedIncurred != null">estimated_incurred = #{estimatedIncurred},</if>
+            <if test="bwbdf != null">bwbdf = #{bwbdf},</if>
+            <if test="slzj != null">slzj = #{slzj},</if>
+            <if test="sljs != null">sljs = #{sljs},</if>
+            <if test="fx != null">fx = #{fx},</if>
+            <if test="slye != null">slye = #{slye},</if>
+            <if test="zzrq != null">zzrq = #{zzrq},</if>
+            <if test="kjkm != null">kjkm = #{kjkm},</if>
+            <if test="kjkmsm != null">kjkmsm = #{kjkmsm},</if>
+            <if test="pzbh != null">pzbh = #{pzbh},</if>
+            <if test="ly != null">ly = #{ly},</if>
+            <if test="rjztsm != null">rjztsm = #{rjztsm},</if>
+            <if test="zy != null">zy = #{zy},</if>
+            <if test="bz != null">bz = #{bz},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null and delFlag != ''">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteActualCostsById">
+        update t_actual_costs
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteActualCostsByIds">
+        update t_actual_costs
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <delete id="deleteActualCostsByFileId">
+        update t_actual_costs
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where file_id = #{fileId}
+    </delete>
+</mapper>

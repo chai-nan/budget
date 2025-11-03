@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.BudgetAdjustmentInfoMapper">
+
+    <resultMap type="BudgetAdjustmentInfo" id="BudgetAdjustmentInfoResult">
+        <result property="id"    column="id"    />
+        <result property="adjustmentId"    column="adjustment_id"    />
+        <result property="subjectId"    column="subject_id"    />
+        <result property="type"    column="type"    />
+        <result property="outDept"    column="out_dept"    />
+        <result property="inDept"    column="in_dept"    />
+        <result property="amount"    column="amount"    />
+    </resultMap>
+
+    <sql id="selectBudgetAdjustmentInfoVo">
+        select id, adjustment_id, subject_id, type, out_dept, in_dept, amount from t_budget_adjustment_info
+    </sql>
+
+    <select id="selectBudgetAdjustmentInfoList" parameterType="BudgetAdjustmentInfo" resultMap="BudgetAdjustmentInfoResult">
+        <include refid="selectBudgetAdjustmentInfoVo"/>
+        <where>
+            <if test="adjustmentId != null "> and adjustment_id = #{adjustmentId}</if>
+            <if test="subjectId != null "> and subject_id = #{subjectId}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="outDept != null "> and out_dept = #{outDept}</if>
+            <if test="inDept != null "> and in_dept = #{inDept}</if>
+            <if test="amount != null "> and amount = #{amount}</if>
+        </where>
+    </select>
+
+    <select id="selectInfoByAdjustment" resultMap="BudgetAdjustmentInfoResult">
+        <include refid="selectBudgetAdjustmentInfoVo"/>
+        where adjustment_id = #{adjustmentId}
+    </select>
+
+    <select id="selectBudgetAdjustmentInfoById" parameterType="Long" resultMap="BudgetAdjustmentInfoResult">
+            <include refid="selectBudgetAdjustmentInfoVo"/>
+            where id = #{id}
+    </select>
+
+    <insert id="insertBudgetAdjustmentInfo" parameterType="BudgetAdjustmentInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into t_budget_adjustment_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="adjustmentId != null">adjustment_id,</if>
+            <if test="subjectId != null">subject_id,</if>
+            <if test="type != null">type,</if>
+            <if test="outDept != null">out_dept,</if>
+            <if test="inDept != null">in_dept,</if>
+            <if test="amount != null">amount,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="adjustmentId != null">#{adjustmentId},</if>
+            <if test="subjectId != null">#{subjectId},</if>
+            <if test="type != null">#{type},</if>
+            <if test="outDept != null">#{outDept},</if>
+            <if test="inDept != null">#{inDept},</if>
+            <if test="amount != null">#{amount},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBudgetAdjustmentInfo" parameterType="BudgetAdjustmentInfo">
+        update t_budget_adjustment_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="adjustmentId != null">adjustment_id = #{adjustmentId},</if>
+            <if test="subjectId != null">subject_id = #{subjectId},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="outDept != null">out_dept = #{outDept},</if>
+            <if test="inDept != null">in_dept = #{inDept},</if>
+            <if test="amount != null">amount = #{amount},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBudgetAdjustmentInfoById">
+        delete from t_budget_adjustment_info where id = #{id}
+    </delete>
+
+    <delete id="deleteBudgetAdjustmentInfoByAdjustment">
+        delete from t_budget_adjustment_info where adjustment_id = #{adjustmentId}
+    </delete>
+</mapper>

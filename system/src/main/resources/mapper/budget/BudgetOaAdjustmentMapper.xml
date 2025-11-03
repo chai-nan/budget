@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.BudgetOaAdjustmentMapper">
+
+    <resultMap type="BudgetOaAdjustment" id="BudgetOaAdjustmentResult">
+        <result property="id"    column="id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="outDept"    column="out_dept"    />
+        <result property="outSubject"    column="out_subject"    />
+        <result property="inDept"    column="in_dept"    />
+        <result property="inSubject"    column="in_subject"    />
+        <result property="amount"    column="amount"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectBudgetOaAdjustmentVo">
+        SELECT t.id, t.task_id, t.out_dept, t.out_subject, t.in_dept, t.in_subject, t.amount, t.remark, t.create_by, t.create_time, t.update_by, t.update_time, t.del_flag ,ipdept.dept_id AS inParentDept,ipdept.dept_name as inParentDeptName, idept.dept_name as inDeptName, isub.`name` as inSubjectName,opdept.dept_id AS outParentDept, opdept.dept_name as outParentDeptName, odept.dept_name as outDeptName, osub.`name` as outSubjectName, tk.`name` as taskName
+        FROM  `t_budget_oa_adjustment` t
+        LEFT JOIN sys_dept idept on t.in_dept = idept.dept_id
+        LEFT JOIN sys_dept ipdept on idept.parent_id = ipdept.dept_id
+        LEFT JOIN sys_dept odept on t.out_dept = odept.dept_id
+        LEFT JOIN sys_dept opdept on odept.parent_id = opdept.dept_id
+        LEFT JOIN t_budget_subject isub on t.in_subject = isub.id
+        LEFT JOIN t_budget_subject osub on t.out_subject = osub.id
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+    </sql>
+
+    <select id="selectBudgetOaAdjustmentList" parameterType="BudgetOaAdjustment" resultMap="BudgetOaAdjustmentResult">
+        <include refid="selectBudgetOaAdjustmentVo"/>
+            where t.del_flag = '0'
+            <if test="taskId != null "> and t.task_id = #{taskId}</if>
+            <if test="outDept != null "> and t.out_dept = #{outDept}</if>
+            <if test="outSubject != null "> and t.out_subject = #{outSubject}</if>
+            <if test="inDept != null "> and t.in_dept = #{inDept}</if>
+            <if test="inSubject != null "> and t.in_subject = #{inSubject}</if>
+             order by t.create_time desc
+    </select>
+
+    <select id="selectBudgetOaAdjustmentById" parameterType="Long" resultMap="BudgetOaAdjustmentResult">
+            <include refid="selectBudgetOaAdjustmentVo"/>
+            where t.id = #{id}
+    </select>
+
+    <insert id="insertBudgetOaAdjustment" parameterType="BudgetOaAdjustment" useGeneratedKeys="true" keyProperty="id">
+        insert into t_budget_oa_adjustment
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="outDept != null">out_dept,</if>
+            <if test="outSubject != null">out_subject,</if>
+            <if test="inDept != null">in_dept,</if>
+            <if test="inSubject != null">in_subject,</if>
+            <if test="amount != null">amount,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="outDept != null">#{outDept},</if>
+            <if test="outSubject != null">#{outSubject},</if>
+            <if test="inDept != null">#{inDept},</if>
+            <if test="inSubject != null">#{inSubject},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBudgetOaAdjustment" parameterType="BudgetOaAdjustment">
+        update t_budget_oa_adjustment
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="outDept != null">out_dept = #{outDept},</if>
+            <if test="outSubject != null">out_subject = #{outSubject},</if>
+            <if test="inDept != null">in_dept = #{inDept},</if>
+            <if test="inSubject != null">in_subject = #{inSubject},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBudgetOaAdjustmentById">
+        update t_budget_oa_adjustment
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteBudgetOaAdjustmentByIds">
+        update t_budget_oa_adjustment
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

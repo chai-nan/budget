@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.ReportedSubjectsMapper">
+
+    <resultMap type="ReportedSubjects" id="ReportedSubjectsResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="type"    column="type"    />
+        <result property="budgetType"    column="budget_type"    />
+        <result property="subjects"    column="subjects"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="oneQuarterlyRatio"    column="one_quarterly_ratio"    />
+        <result property="twoQuarterlyRatio"    column="two_quarterly_ratio"    />
+        <result property="threeQuarterlyRatio"    column="three_quarterly_ratio"    />
+        <result property="fourQuarterlyRatio"    column="four_quarterly_ratio"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectReportedSubjectsVo">
+        SELECT t.id,t.`name`,t.type,t.budget_type,t.subjects,t.order_num,t.one_quarterly_ratio,t.two_quarterly_ratio,t.three_quarterly_ratio,t.four_quarterly_ratio,t.create_by,t.create_time,t.update_by,t.update_time, t.del_flag, (SELECT GROUP_CONCAT( b.`name`  ORDER BY FIND_IN_SET(  b.id, t.subjects ))  FROM t_budget_subject b WHERE FIND_IN_SET(  b.id, t.subjects ) > 0 ) as subjectNames, btd.dict_label AS budgetTypeName
+        FROM  t_reported_subjects t
+        LEFT JOIN sys_dict_data btd on t.budget_type = btd.dict_value and btd.dict_type = 'item_type'
+    </sql>
+
+    <select id="selectReportedSubjectsList" parameterType="ReportedSubjects" resultMap="ReportedSubjectsResult">
+        <include refid="selectReportedSubjectsVo"/>
+        where del_flag = '0'
+        <if test="name != null  and name != ''"> and t.`name` like concat('%', #{name}, '%')</if>
+        <if test="type != null "> and t.type = #{type}</if>
+        <if test="budgetType != null  and budgetType != ''"> and t.budget_type = #{budgetType}</if>
+        <if test="subjects != null  and subjects != ''"> and t.subjects = #{subjects}</if>
+        <if test="orderNum != null "> and t.order_num = #{orderNum}</if>
+        order by t.order_num
+    </select>
+
+    <select id="selectReportedSubjectsById" parameterType="Long" resultMap="ReportedSubjectsResult">
+        <include refid="selectReportedSubjectsVo"/>
+        where t.id = #{id}
+    </select>
+
+    <insert id="insertReportedSubjects" parameterType="ReportedSubjects" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reported_subjects
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="type != null">type,</if>
+            <if test="budgetType != null">budget_type,</if>
+            <if test="subjects != null">subjects,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="oneQuarterlyRatio != null">one_quarterly_ratio,</if>
+            <if test="twoQuarterlyRatio != null">two_quarterly_ratio,</if>
+            <if test="threeQuarterlyRatio != null">three_quarterly_ratio,</if>
+            <if test="fourQuarterlyRatio != null">four_quarterly_ratio,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="type != null">#{type},</if>
+            <if test="budgetType != null">#{budgetType},</if>
+            <if test="subjects != null">#{subjects},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="oneQuarterlyRatio != null">#{oneQuarterlyRatio},</if>
+            <if test="twoQuarterlyRatio != null">#{twoQuarterlyRatio},</if>
+            <if test="threeQuarterlyRatio != null">#{threeQuarterlyRatio},</if>
+            <if test="fourQuarterlyRatio != null">#{fourQuarterlyRatio},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateReportedSubjects" parameterType="ReportedSubjects">
+        update t_reported_subjects
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="budgetType != null">budget_type = #{budgetType},</if>
+            <if test="subjects != null">subjects = #{subjects},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="oneQuarterlyRatio != null">one_quarterly_ratio = #{oneQuarterlyRatio},</if>
+            <if test="twoQuarterlyRatio != null">two_quarterly_ratio = #{twoQuarterlyRatio},</if>
+            <if test="threeQuarterlyRatio != null">three_quarterly_ratio = #{threeQuarterlyRatio},</if>
+            <if test="fourQuarterlyRatio != null">four_quarterly_ratio = #{fourQuarterlyRatio},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteReportedSubjectsById">
+        update t_reported_subjects
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteReportedSubjectsByIds">
+        update t_reported_subjects
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

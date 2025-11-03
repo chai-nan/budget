@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.BudgetReportingMapper">
+
+    <update id="updateModuleData">
+        update  ${tableName}
+        <trim prefix="SET" suffixOverrides=",">
+            <foreach collection="tableColumns" index="index" item="item" separator=",">
+                <choose>
+                    <when test="index != null and index != '' and index != 'update_time' and index != 'id'">
+                        ${index}= '${item}'
+                    </when>
+                    <when test="index=='update_time'">
+                        update_time= sysdate()
+                    </when>
+                </choose>
+            </foreach>
+        </trim>
+        where id = '${tableColumns.id}'
+    </update>
+</mapper>

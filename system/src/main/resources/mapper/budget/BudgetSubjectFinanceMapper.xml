@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.BudgetSubjectFinanceMapper">
+
+    <resultMap type="BudgetSubjectFinance" id="BudgetSubjectFinanceResult">
+        <result property="subjectId"    column="subject_id"    />
+        <result property="financelSubject"    column="financel_subject"    />
+    </resultMap>
+
+    <sql id="selectBudgetSubjectFinanceVo">
+        SELECT t.subject_id, t.financel_subject  ,d.dict_label as financelSubjectName
+        FROM t_budget_subject_finance t
+        LEFT JOIN t_budget_subject s on t.subject_id = s.id
+        LEFT JOIN sys_dict_data d on d.dict_value = t.financel_subject and d.dict_type = 'financial_subjects'
+    </sql>
+
+    <select id="selectBudgetSubjectFinanceList" parameterType="BudgetSubjectFinance" resultMap="BudgetSubjectFinanceResult">
+        <include refid="selectBudgetSubjectFinanceVo"/>
+            where s.del_flag = 0
+            <if test="subjectId != null "> and t.subject_id = #{subjectId}</if>
+            <if test="financelSubject != null and financelSubject != ''"> and t.financel_subject = #{financelSubject}</if>
+    </select>
+
+    <select id="selectByFinancialName" resultMap="BudgetSubjectFinanceResult">
+        <include refid="selectBudgetSubjectFinanceVo"/>
+        where  d.dict_label = #{kjkmsm} and s.del_flag = 0
+    </select>
+
+    <insert id="insertBudgetSubjectFinance" parameterType="BudgetSubjectFinance">
+        insert into t_budget_subject_finance
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="subjectId != null">subject_id,</if>
+            <if test="financelSubject != null">financel_subject,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="subjectId != null">#{subjectId},</if>
+            <if test="financelSubject != null">#{financelSubject},</if>
+        </trim>
+    </insert>
+
+    <insert id="insertList">
+        insert into t_budget_subject_finance (subject_id, financel_subject)
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.subjectId,jdbcType=BIGINT}, #{item.financelSubject,jdbcType=VARCHAR})
+        </foreach>
+    </insert>
+
+    <delete id="deleteBudgetSubjectFinanceBySubjectId">
+        delete from t_budget_subject_finance where subject_id = #{subjectId}
+    </delete>
+
+</mapper>

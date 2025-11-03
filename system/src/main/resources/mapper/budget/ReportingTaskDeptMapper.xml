@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.ReportingTaskDeptMapper">
+
+    <resultMap type="ReportingTaskDept" id="ReportingTaskDeptResult">
+        <result property="id"    column="id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectReportingTaskDeptVo">
+        select id, task_id, dept_id, create_by, create_time from t_reporting_task_dept
+    </sql>
+
+    <select id="selectReportingTaskDeptList" parameterType="ReportingTaskDept" resultMap="ReportingTaskDeptResult">
+        <include refid="selectReportingTaskDeptVo"/>
+        <where>
+            <if test="taskId != null "> and task_id = #{taskId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+        </where>
+    </select>
+
+    <select id="selectReportingTaskDeptById" parameterType="Long" resultMap="ReportingTaskDeptResult">
+            <include refid="selectReportingTaskDeptVo"/>
+            where id = #{id}
+    </select>
+
+    <insert id="insertReportingTaskDept" parameterType="ReportingTaskDept">
+        insert into t_reporting_task_dept
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateReportingTaskDept" parameterType="ReportingTaskDept">
+        update t_reporting_task_dept
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteReportingTaskDeptById">
+        update t_reporting_task_dept
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteReportingTaskDeptByIds">
+        update t_reporting_task_dept
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

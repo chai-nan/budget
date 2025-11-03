@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.BudgetSubjectMapper">
+
+    <resultMap type="BudgetSubject" id="BudgetSubjectResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="reportName"    column="report_name"    />
+        <result property="financelSubject"    column="financel_subject"    />
+        <result property="specialType"    column="special_type"    />
+        <result property="budgetType"    column="budget_type"    />
+        <result property="growthRate"    column="growth_rate"    />
+        <result property="budgetRatio"    column="budget_ratio"    />
+        <result property="type"    column="type"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="xsExport"    column="xs_export"    />
+        <result property="xsNumber"    column="xs_number"    />
+        <result property="glExport"    column="gl_export"    />
+        <result property="glNumber"    column="gl_number"    />
+        <result property="yfExport"    column="yf_export"    />
+        <result property="yfNumber"    column="yf_number"    />
+        <result property="zzExport"    column="zz_export"    />
+        <result property="zzNumber"    column="zz_number"    />
+        <result property="parentId"   column="parent_id"   />
+        <result property="ancestors"  column="ancestors"   />
+        <result property="level" column="level" />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectBudgetSubjectVo">
+        SELECT t.id,t.parent_id, t.ancestors,t.level,t.NAME,t.financel_subject,t.special_type,t.budget_type,t.type,t.budget_ratio,t.growth_rate,t.hz_export,t.order_num,t.xs_export, t.xs_number, t.gl_export, t.gl_number, t.yf_export, t.yf_number, t.zz_export, t.zz_number,t.del_flag,t.create_by,t.create_time,t.update_by,t.update_time,t.report_name,btd.dict_label as itemType,  (SELECT GROUP_CONCAT(d.dict_label ORDER BY FIND_IN_SET(d.dict_value, t.financel_subject))  FROM  sys_dict_data d  WHERE  FIND_IN_SET(d.dict_value, t.financel_subject) > 0  AND d.dict_type = 'financial_subjects') AS financelSubjectName
+        FROM  t_budget_subject t
+        LEFT JOIN sys_dict_data btd on t.budget_type = btd.dict_value and btd.dict_type = 'item_type'
+    </sql>
+
+    <select id="selectBudgetSubjectList" parameterType="BudgetSubject" resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.del_flag = '0'
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="financelSubject != null "> and FIND_IN_SET(#{financelSubject}, t.financel_subject) </if>
+        <if test="specialType != null "> and t.special_type = #{specialType}</if>
+        <if test="type != null "> and t.type = #{type}</if>
+        <if test="parentId != null "> and t.parent_id = #{parentId}</if>
+        <if test="level != null "> and t.level = #{level}</if>
+        <if test="growthRate != null "> and t.growth_rate = #{growthRate}</if>
+        <if test="hzExport != null "> and t.hz_export = #{hzExport}</if>
+        <if test="xsExport != null "> and t.xs_export = #{xsExport}</if>
+        <if test="glExport != null "> and t.gl_export = #{glExport}</if>
+        <if test="yfExport != null "> and t.yf_export = #{yfExport}</if>
+        <if test="zzExport != null "> and t.zz_export = #{zzExport}</if>
+         order by t.order_num, t.id
+    </select>
+
+    <select id="selectBudgetSubjectById" parameterType="Long" resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.id = #{id} and t.del_flag = '0'
+    </select>
+
+    <select id="selectByNameAndFinancelSubject" resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.financel_subject = #{financelSubject} and t.name  = #{name} and t.del_flag = '0'
+    </select>
+
+    <select id="selectBudgetSubjectListByXs" parameterType="BudgetSubject" resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.del_flag = '0'
+        <if test="xsExport != null "> and xs_export = #{xsExport}</if>
+        order by t.xs_number, t.order_num
+    </select>
+
+    <select id="selectBudgetSubjectListByGl" parameterType="BudgetSubject" resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.del_flag = '0'
+        <if test="glExport != null "> and gl_export = #{glExport}</if>
+        order by t.gl_number, t.order_num
+    </select>
+
+    <select id="selectBudgetSubjectListByYf" parameterType="BudgetSubject" resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.del_flag = '0'
+        <if test="yfExport != null "> and yf_export = #{yfExport}</if>
+        order by t.yf_number, t.order_num
+    </select>
+
+    <select id="selectBudgetSubjectListByZz" parameterType="BudgetSubject" resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.del_flag = '0'
+        <if test="zzExport != null "> and zz_export = #{zzExport}</if>
+        order by t.zz_number, t.order_num
+    </select>
+
+    <select id="selectChildrenByParentId"  resultMap="BudgetSubjectResult">
+        <include refid="selectBudgetSubjectVo"/>
+        where t.del_flag = '0' and t.parent_id = #{parentId}
+    </select>
+
+    <select id="listByDept" resultType="net.cmkj.budget.domain.BudgetSubject">
+        SELECT DISTINCT  bs.id,  bs.name
+        FROM   t_budget_subject bs
+        INNER JOIN t_budget_item bi ON bs.id = bi.subject_id AND bi.del_flag = 0
+        INNER JOIN t_budget_item_dept bid ON bi.id = bid.item_id AND bid.dept_id =  #{deptId}
+        WHERE  bs.del_flag = 0
+    </select>
+
+    <insert id="insertBudgetSubject" parameterType="BudgetSubject" useGeneratedKeys="true" keyProperty="id">
+        insert into t_budget_subject
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="parentId != null ">parent_id,</if>
+            <if test="ancestors != null and ancestors != ''">ancestors,</if>
+            <if test="level != null and level != ''">level,</if>
+            <if test="reportName != null">report_name,</if>
+            <if test="financelSubject != null">financel_subject,</if>
+            <if test="specialType != null">special_type,</if>
+            <if test="type != null">type,</if>
+            <if test="budgetType != null">budget_type,</if>
+            <if test="budgetRatio != null">budget_ratio,</if>
+            <if test="growthRate != null">growth_rate,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="hzExport != null">hz_export,</if>
+            <if test="xsExport != null">xs_export,</if>
+            <if test="xsNumber != null">xs_number,</if>
+            <if test="glExport != null">gl_export,</if>
+            <if test="glNumber != null">gl_number,</if>
+            <if test="yfExport != null">yf_export,</if>
+            <if test="yfNumber != null">yf_number,</if>
+            <if test="zzExport != null">zz_export,</if>
+            <if test="zzNumber != null">zz_number,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="parentId != null">#{parentId},</if>
+            <if test="ancestors != null and ancestors != ''">#{ancestors},</if>
+            <if test="level != null and level != ''">#{level},</if>
+            <if test="reportName != null">#{reportName},</if>
+            <if test="financelSubject != null">#{financelSubject},</if>
+            <if test="type != null">#{type},</if>
+            <if test="specialType != null">#{specialType},</if>
+            <if test="budgetType != null">#{budgetType},</if>
+            <if test="budgetRatio != null">#{budgetRatio},</if>
+            <if test="growthRate != null">#{growthRate},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="hzExport != null">#{hzExport},</if>
+            <if test="xsExport != null">#{xsExport},</if>
+            <if test="xsNumber != null">#{xsNumber},</if>
+            <if test="glExport != null">#{glExport},</if>
+            <if test="glNumber != null">#{glNumber},</if>
+            <if test="yfExport != null">#{yfExport},</if>
+            <if test="yfNumber != null">#{yfNumber},</if>
+            <if test="zzExport != null">#{zzExport},</if>
+            <if test="zzNumber != null">#{zzNumber},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateBudgetSubject" parameterType="BudgetSubject">
+        update t_budget_subject
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="name != null">name = #{name},</if>
+            <if test="parentId != null ">parent_id = #{parentId},</if>
+            <if test="ancestors != null ">ancestors = #{ancestors},</if>
+            <if test="level != null and level != ''">level = #{level},</if>
+            <if test="reportName != null">report_name = #{reportName},</if>
+            <if test="financelSubject != null">financel_subject = #{financelSubject},</if>
+            <if test="type != ''">type = #{type},</if>
+            <if test="specialType != null">special_type = #{specialType},</if>
+            <if test="budgetRatio != null">budget_ratio = #{budgetRatio},</if>
+            <if test="growthRate != null">growth_rate = #{growthRate},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="hzExport != null">hz_export = #{hzExport},</if>
+            <if test="xsExport != null">xs_export = #{xsExport},</if>
+            <if test="xsNumber != null">xs_number = #{xsNumber},</if>
+            <if test="glExport != null">gl_export = #{glExport},</if>
+            <if test="glNumber != null">gl_number = #{glNumber},</if>
+            <if test="yfExport != null">yf_export = #{yfExport},</if>
+            <if test="yfNumber != null">yf_number = #{yfNumber},</if>
+            <if test="zzExport != null">zz_export = #{zzExport},</if>
+            <if test="zzNumber != null">zz_number = #{zzNumber},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBudgetSubjectById" parameterType="Long">
+        update t_budget_subject set del_flag = '2' , update_by = #{userName} , update_time = SYSDATE()  where id = #{id}
+    </delete>
+
+    <delete id="deleteBudgetSubjectByIds" parameterType="map">
+        UPDATE t_budget_subject
+        SET del_flag = '2', update_by = #{userName}, update_time = SYSDATE()
+        WHERE id IN
+        <foreach item="id" collection="ids" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

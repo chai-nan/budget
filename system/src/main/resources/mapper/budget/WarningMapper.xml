@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.WarningMapper">
+
+    <resultMap type="Warning" id="WarningResult">
+        <result property="id"    column="id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="deptName"    column="dept_name"    />
+        <result property="actualMoney"    column="actual_money"    />
+        <result property="budgetMoney"    column="budget_money"    />
+        <result property="moneyType"    column="money_type"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="taskName"    column="task_name"    />
+        <result property="messageType"    column="message_type"    />
+        <result property="message"    column="message"    />
+        <result property="createdTime"    column="created_time"    />
+        <result property="reamrk"    column="reamrk"    />
+        <result property="year"    column="year"    />
+        <result property="subjectId"    column="subject_id"    />
+        <result property="subjectName"    column="subject_name"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectWarningVo">
+        select id, dept_id, dept_name, actual_money, budget_money, money_type, task_id, task_name, message_type, message, created_time, reamrk, year, subject_id, subject_name, del_flag, update_by, update_time from t_warning
+    </sql>
+
+    <select id="selectWarningList" parameterType="Warning" resultMap="WarningResult">
+        <include refid="selectWarningVo"/>
+        <where>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="deptName != null  and deptName != ''"> and dept_name like concat('%', #{deptName}, '%')</if>
+            <if test="actualMoney != null "> and actual_money = #{actualMoney}</if>
+            <if test="budgetMoney != null "> and budget_money = #{budgetMoney}</if>
+            <if test="moneyType != null "> and money_type = #{moneyType}</if>
+            <if test="taskId != null "> and task_id = #{taskId}</if>
+            <if test="taskName != null  and taskName != ''"> and task_name like concat('%', #{taskName}, '%')</if>
+            <if test="messageType != null "> and message_type = #{messageType}</if>
+            <if test="message != null  and message != ''"> and message = #{message}</if>
+            <if test="createdTime != null "> and created_time = #{createdTime}</if>
+            <if test="reamrk != null  and reamrk != ''"> and reamrk = #{reamrk}</if>
+            <if test="year != null "> and year = #{year}</if>
+            <if test="subjectId != null "> and subject_id = #{subjectId}</if>
+            <if test="subjectName != null  and subjectName != ''"> and subject_name like concat('%', #{subjectName}, '%')</if>
+            <if test="delFlag != null "> and del_flag = #{delFlag}</if>
+        </where>
+    </select>
+
+    <select id="selectWarningById" parameterType="Long" resultMap="WarningResult">
+            <include refid="selectWarningVo"/>
+            where id = #{id}
+    </select>
+
+    <insert id="insertWarning" parameterType="Warning" useGeneratedKeys="true" keyProperty="id">
+        insert into t_warning
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">dept_id,</if>
+            <if test="deptName != null">dept_name,</if>
+            <if test="actualMoney != null">actual_money,</if>
+            <if test="budgetMoney != null">budget_money,</if>
+            <if test="moneyType != null">money_type,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="taskName != null">task_name,</if>
+            <if test="messageType != null">message_type,</if>
+            <if test="message != null">message,</if>
+            <if test="createdTime != null">created_time,</if>
+            <if test="reamrk != null">reamrk,</if>
+            <if test="year != null">year,</if>
+            <if test="subjectId != null">subject_id,</if>
+            <if test="subjectName != null">subject_name,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="deptId != null">#{deptId},</if>
+            <if test="deptName != null">#{deptName},</if>
+            <if test="actualMoney != null">#{actualMoney},</if>
+            <if test="budgetMoney != null">#{budgetMoney},</if>
+            <if test="moneyType != null">#{moneyType},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="taskName != null">#{taskName},</if>
+            <if test="messageType != null">#{messageType},</if>
+            <if test="message != null">#{message},</if>
+            <if test="createdTime != null">#{createdTime},</if>
+            <if test="reamrk != null">#{reamrk},</if>
+            <if test="year != null">#{year},</if>
+            <if test="subjectId != null">#{subjectId},</if>
+            <if test="subjectName != null">#{subjectName},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateWarning" parameterType="Warning">
+        update t_warning
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="deptName != null">dept_name = #{deptName},</if>
+            <if test="actualMoney != null">actual_money = #{actualMoney},</if>
+            <if test="budgetMoney != null">budget_money = #{budgetMoney},</if>
+            <if test="moneyType != null">money_type = #{moneyType},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="taskName != null">task_name = #{taskName},</if>
+            <if test="messageType != null">message_type = #{messageType},</if>
+            <if test="message != null">message = #{message},</if>
+            <if test="createdTime != null">created_time = #{createdTime},</if>
+            <if test="reamrk != null">reamrk = #{reamrk},</if>
+            <if test="year != null">year = #{year},</if>
+            <if test="subjectId != null">subject_id = #{subjectId},</if>
+            <if test="subjectName != null">subject_name = #{subjectName},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWarningById">
+        update t_warning
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteWarningByIds">
+        update t_warning
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

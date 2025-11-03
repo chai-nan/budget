@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.budget.mapper.ReportingLogMapper">
+
+    <resultMap type="ReportingLog" id="ReportingLogResult">
+        <result property="id"    column="id"    />
+        <result property="itemId"    column="item_id"    />
+        <result property="budgetId"    column="budget_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="time"    column="time"    />
+    </resultMap>
+
+    <sql id="selectReportingLogVo">
+        SELECT t.id,t.item_id,t.budget_id,t.user_id,t.dept_id,t.STATUS,t.remark,t.time,u.nick_name as userName,d.dept_name as deptName
+        FROM t_reporting_log t
+        LEFT JOIN sys_user u on u.user_id = t.user_id
+        LEFT JOIN sys_dept d on d.dept_id = t.dept_id
+    </sql>
+
+    <select id="selectReportingLogList" parameterType="ReportingLog" resultMap="ReportingLogResult">
+        <include refid="selectReportingLogVo"/>
+        <where>
+            <if test="itemId != null "> and t.item_id = #{itemId}</if>
+            <if test="budgetId != null  and budgetId != ''"> and t.budget_id = #{budgetId}</if>
+            <if test="userId != null "> and t.user_id = #{userId}</if>
+            <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+            <if test="status != null "> and t.status = #{status}</if>
+            <if test="time != null "> and t.time = #{time}</if>
+        </where>
+        order by t.time desc
+    </select>
+
+    <select id="selectReportingLogById" parameterType="Long" resultMap="ReportingLogResult">
+        <include refid="selectReportingLogVo"/>
+        where t.id = #{id}
+    </select>
+
+    <insert id="insertReportingLog" parameterType="ReportingLog" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="itemId != null">item_id,</if>
+            <if test="budgetId != null">budget_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="time != null">time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="itemId != null">#{itemId},</if>
+            <if test="budgetId != null">#{budgetId},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="time != null">#{time},</if>
+        </trim>
+    </insert>
+
+    <update id="updateReportingLog" parameterType="ReportingLog">
+        update t_reporting_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="itemId != null">item_id = #{itemId},</if>
+            <if test="budgetId != null">budget_id = #{budgetId},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="time != null">time = #{time},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteReportingLogById" parameterType="Long">
+        update t_reporting_log set del_flag = '2'  where id = #{id}
+    </delete>
+
+    <delete id="deleteReportingLogByIds" parameterType="String">
+        update t_reporting_log set del_flag = '2'  where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
