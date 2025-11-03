@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.TablePipelineMapper">
+
+    <resultMap type="TablePipeline" id="TablePipelineResult">
+        <result property="id"    column="id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="projectStatus"    column="project_status"    />
+        <result property="projectType"    column="project_type"    />
+        <result property="name"    column="name"    />
+        <result property="situation"    column="situation"    />
+        <result property="contentProgress"    column="content_progress"    />
+        <result property="analysis"    column="analysis"    />
+        <result property="length"    column="length"    />
+        <result property="investment"    column="investment"    />
+        <result property="completedLength"    column="completed_length"    />
+        <result property="completedSettlement"    column="completed_settlement"    />
+        <result property="actualLength"    column="actual_length"    />
+        <result property="actualSettlement"    column="actual_settlement"    />
+        <result property="details"    column="details"    />
+        <result property="expectedLength"    column="expected_length"    />
+        <result property="expectedSettlement"    column="expected_settlement"    />
+        <result property="auditLength"    column="audit_length"    />
+        <result property="auditSettlement"    column="audit_settlement"    />
+        <result property="auditDescription"    column="audit_description"    />
+        <result property="year1Length"    column="year1_length"    />
+        <result property="year1Settlement"    column="year1_settlement"    />
+        <result property="year2Length"    column="year2_length"    />
+        <result property="year2Settlement"    column="year2_settlement"    />
+        <result property="year3Length"    column="year3_length"    />
+        <result property="year3Settlement"    column="year3_settlement"    />
+        <result property="year4Length"    column="year4_length"    />
+        <result property="year4Settlement"    column="year4_settlement"    />
+        <result property="year5Length"    column="year5_length"    />
+        <result property="year5Settlement"    column="year5_settlement"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectTablePipelineVo">
+        SELECT t.id,t.task_id,t.dept_id,t.project_status,t.project_type,t.`name`,t.situation,t.content_progress,t.analysis,t.length,t.investment,t.completed_length,t.completed_settlement,t.actual_length,t.actual_settlement,t.details,t.expected_length,t.expected_settlement,t.audit_length,t.audit_settlement,t.audit_description,t.year1_length,t.year1_settlement,t.year2_length,t.year2_settlement,t.year3_length,t.year3_settlement,t.year4_length,t.year4_settlement,t.year5_length,t.year5_settlement,t.`status`,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName
+        FROM  t_reporting_table_pipeline t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+    </sql>
+
+    <select id="selectTablePipelineList" parameterType="TablePipeline" resultMap="TablePipelineResult">
+        <include refid="selectTablePipelineVo"/>
+            where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 2)
+            <if test="taskId != null "> and t.task_id = #{taskId}</if>
+            <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+            <if test="projectStatus != null "> and t.project_status = #{projectStatus}</if>
+            <if test="projectType != null "> and t.project_type = #{projectType}</if>
+            <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+            <if test="status != null "> and t.status = #{status}</if>
+            <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+            <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+            <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+            <if test="selectType != null and selectType == 4"> and (t.status = 3 or  t.status = 5 ) </if>
+            <if test="deptIds != null and deptIds.size() > 0">
+                and t.dept_id in
+                <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            order by t.dept_id
+    </select>
+
+    <select id="selectTablePipelineCountList" parameterType="TablePipeline" resultMap="TablePipelineResult">
+        SELECT t.id,t.task_id,t.dept_id,t.project_status,t.project_type,t.`name`,t.situation,t.content_progress,t.analysis,t.length,t.investment,t.completed_length,t.completed_settlement,t.actual_length,t.actual_settlement,t.details,t.expected_length,t.expected_settlement,t.audit_length,t.audit_settlement,t.audit_description,t.year1_length,t.year1_settlement,t.year2_length,t.year2_settlement,t.year3_length,t.year3_settlement,t.year4_length,t.year4_settlement,t.year5_length,t.year5_settlement,t.`status`,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName, u.nick_name as userName
+        FROM  t_reporting_table_pipeline t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        LEFT JOIN sys_user u on t.create_by = u.user_name
+        where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 2)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="projectStatus != null "> and t.project_status = #{projectStatus}</if>
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        UNION ALL
+        SELECT NULL AS id, NULL AS task_id, t.dept_id, NULL AS project_status, NULL AS project_type, '' AS `name`, 5 AS situation, NULL AS content_progress, NULL AS analysis, SUM(t.length) AS length, SUM(t.investment) AS investment, SUM(t.completed_length) AS completed_length, SUM(t.completed_settlement) AS completed_settlement, SUM(t.actual_length) AS actual_length, SUM(t.actual_settlement) AS actual_settlement, NULL AS details, SUM(t.expected_length) AS expected_length, SUM(t.expected_settlement) AS expected_settlement, SUM(t.audit_length) AS audit_length, SUM(t.audit_settlement) AS audit_settlement, NULL AS audit_description, SUM(t.year1_length) AS year1_length, SUM(t.year1_settlement) AS year1_settlement, SUM(t.year2_length) AS year2_length, SUM(t.year2_settlement) AS year2_settlement, SUM(t.year3_length) AS year3_length, SUM(t.year3_settlement) AS year3_settlement, SUM(t.year4_length) AS year4_length, SUM(t.year4_settlement) AS year4_settlement, SUM(t.year5_length) AS year5_length, SUM(t.year5_settlement) AS year5_settlement, NULL AS `status`, NULL AS create_by, NOW() AS create_time, NULL AS update_by, NULL AS update_time,   NULL AS del_flag, tk.`name` AS taskName, CONCAT(d.dept_name,'合计')   AS deptName, d.parent_id AS parentId, pd.dept_name AS parentName, NULL as userName
+        FROM t_reporting_table_pipeline t
+        LEFT JOIN t_reporting_task tk ON t.task_id = tk.id
+        LEFT JOIN sys_dept d ON t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd ON d.parent_id = pd.dept_id
+        WHERE t.del_flag = '0'  AND t.dept_id IN (SELECT dept_id FROM t_budget_item_dept WHERE item_id = 2)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="projectStatus != null "> and t.project_status = #{projectStatus}</if>
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY t.dept_id
+        ORDER BY dept_id, create_time
+    </select>
+
+    <select id="selectTablePipelineById" parameterType="Long" resultMap="TablePipelineResult">
+            <include refid="selectTablePipelineVo"/>
+            where t.id = #{id}
+    </select>
+
+    <select id="budgetSummaryList" resultMap="TablePipelineResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(actual_length) as actual_length,SUM(actual_settlement) as actual_settlement,SUM(expected_length) as expected_length,SUM(expected_settlement) as expected_settlement
+        FROM  `t_reporting_table_pipeline` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 2)
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList2" resultMap="TablePipelineResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(actual_length) as actual_length,SUM(actual_settlement) as actual_settlement,SUM(expected_length) as expected_length,SUM(expected_settlement) as expected_settlement, SUM(CASE WHEN t.status = 2 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_pipeline` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 2)
+        and t.status != 1 and  t.status != 4
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList3" resultMap="TablePipelineResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(actual_length) as actual_length,SUM(actual_settlement) as actual_settlement,SUM(expected_length) as expected_length,SUM(expected_settlement) as expected_settlement, SUM(CASE WHEN t.status = 3 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_pipeline` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 2)
+        and (t.status = 3 or  t.status = 5)
+        GROUP BY d.parent_id
+    </select>
+
+    <insert id="insertTablePipeline" parameterType="TablePipeline" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_table_pipeline
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="projectStatus != null">project_status,</if>
+            <if test="projectType != null">project_type,</if>
+            <if test="name != null">name,</if>
+            <if test="situation != null">situation,</if>
+            <if test="contentProgress != null">content_progress,</if>
+            <if test="analysis != null">analysis,</if>
+            <if test="length != null">length,</if>
+            <if test="investment != null">investment,</if>
+            <if test="completedLength != null">completed_length,</if>
+            <if test="completedSettlement != null">completed_settlement,</if>
+            <if test="actualLength != null">actual_length,</if>
+            <if test="actualSettlement != null">actual_settlement,</if>
+            <if test="details != null">details,</if>
+            <if test="expectedLength != null">expected_length,</if>
+            <if test="expectedSettlement != null">expected_settlement,</if>
+            <if test="auditLength != null">audit_length,</if>
+            <if test="auditSettlement != null">audit_settlement,</if>
+            <if test="auditDescription != null">audit_description,</if>
+            <if test="year1Length != null">year1_length,</if>
+            <if test="year1Settlement != null">year1_settlement,</if>
+            <if test="year2Length != null">year2_length,</if>
+            <if test="year2Settlement != null">year2_settlement,</if>
+            <if test="year3Length != null">year3_length,</if>
+            <if test="year3Settlement != null">year3_settlement,</if>
+            <if test="year4Length != null">year4_length,</if>
+            <if test="year4Settlement != null">year4_settlement,</if>
+            <if test="year5Length != null">year5_length,</if>
+            <if test="year5Settlement != null">year5_settlement,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="projectStatus != null">#{projectStatus},</if>
+            <if test="projectType != null">#{projectType},</if>
+            <if test="name != null">#{name},</if>
+            <if test="situation != null">#{situation},</if>
+            <if test="contentProgress != null">#{contentProgress},</if>
+            <if test="analysis != null">#{analysis},</if>
+            <if test="length != null">#{length},</if>
+            <if test="investment != null">#{investment},</if>
+            <if test="completedLength != null">#{completedLength},</if>
+            <if test="completedSettlement != null">#{completedSettlement},</if>
+            <if test="actualLength != null">#{actualLength},</if>
+            <if test="actualSettlement != null">#{actualSettlement},</if>
+            <if test="details != null">#{details},</if>
+            <if test="expectedLength != null">#{expectedLength},</if>
+            <if test="expectedSettlement != null">#{expectedSettlement},</if>
+            <if test="auditLength != null">#{auditLength},</if>
+            <if test="auditSettlement != null">#{auditSettlement},</if>
+            <if test="auditDescription != null">#{auditDescription},</if>
+            <if test="year1Length != null">#{year1Length},</if>
+            <if test="year1Settlement != null">#{year1Settlement},</if>
+            <if test="year2Length != null">#{year2Length},</if>
+            <if test="year2Settlement != null">#{year2Settlement},</if>
+            <if test="year3Length != null">#{year3Length},</if>
+            <if test="year3Settlement != null">#{year3Settlement},</if>
+            <if test="year4Length != null">#{year4Length},</if>
+            <if test="year4Settlement != null">#{year4Settlement},</if>
+            <if test="year5Length != null">#{year5Length},</if>
+            <if test="year5Settlement != null">#{year5Settlement},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTablePipeline" parameterType="TablePipeline">
+        update t_reporting_table_pipeline
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            <if test="projectType != null">project_type = #{projectType},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="situation != null">situation = #{situation},</if>
+            <if test="contentProgress != null">content_progress = #{contentProgress},</if>
+            <if test="analysis != null">analysis = #{analysis},</if>
+            <if test="length != null">length = #{length},</if>
+            <if test="investment != null">investment = #{investment},</if>
+            <if test="completedLength != null">completed_length = #{completedLength},</if>
+            <if test="completedSettlement != null">completed_settlement = #{completedSettlement},</if>
+            <if test="actualLength != null">actual_length = #{actualLength},</if>
+            <if test="actualSettlement != null">actual_settlement = #{actualSettlement},</if>
+            <if test="details != null">details = #{details},</if>
+            <if test="expectedLength != null">expected_length = #{expectedLength},</if>
+            <if test="expectedSettlement != null">expected_settlement = #{expectedSettlement},</if>
+            <if test="auditLength != null">audit_length = #{auditLength},</if>
+            <if test="auditSettlement != null">audit_settlement = #{auditSettlement},</if>
+            <if test="auditDescription != null">audit_description = #{auditDescription},</if>
+            <if test="year1Length != null">year1_length = #{year1Length},</if>
+            <if test="year1Settlement != null">year1_settlement = #{year1Settlement},</if>
+            <if test="year2Length != null">year2_length = #{year2Length},</if>
+            <if test="year2Settlement != null">year2_settlement = #{year2Settlement},</if>
+            <if test="year3Length != null">year3_length = #{year3Length},</if>
+            <if test="year3Settlement != null">year3_settlement = #{year3Settlement},</if>
+            <if test="year4Length != null">year4_length = #{year4Length},</if>
+            <if test="year4Settlement != null">year4_settlement = #{year4Settlement},</if>
+            <if test="year5Length != null">year5_length = #{year5Length},</if>
+            <if test="year5Settlement != null">year5_settlement = #{year5Settlement},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTablePipelineById">
+        update t_reporting_table_pipeline
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTablePipelineByIds">
+        update t_reporting_table_pipeline
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.TableResearchMapper">
+
+    <resultMap type="TableResearch" id="TableResearchResult">
+        <result property="id"    column="id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="projectStatus"    column="project_status"    />
+        <result property="projectType"    column="project_type"    />
+        <result property="number"    column="number"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="name"    column="name"    />
+        <result property="cooperativeUnit"    column="cooperative_unit"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="researchContents"    column="research_contents"    />
+        <result property="deliverables"    column="deliverables"    />
+        <result property="investment"    column="investment"    />
+        <result property="completedSettlement"    column="completed_settlement"    />
+        <result property="expectedSettlement"    column="expected_settlement"    />
+        <result property="intangibleAssets"    column="intangible_assets"    />
+        <result property="fixedAssets"    column="fixed_assets"    />
+        <result property="fixedAssetsDescription"    column="fixed_assets_description"    />
+        <result property="subtotalCosts"    column="subtotal_costs"    />
+        <result property="subtotalCostsDescription"    column="subtotal_costs_description"    />
+        <result property="auditSettlement"    column="audit_settlement"    />
+        <result property="auditDescription"    column="audit_description"    />
+        <result property="year1Settlement"    column="year1_settlement"    />
+        <result property="year2Settlement"    column="year2_settlement"    />
+        <result property="year3Settlement"    column="year3_settlement"    />
+        <result property="year4Settlement"    column="year4_settlement"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectTableResearchVo">
+        SELECT t.id,t.task_id,t.dept_id,t.project_status,t.project_type,t.number,t.quantity,t.NAME,t.cooperative_unit,t.start_time,t.end_time,t.research_contents,t.deliverables,t.investment,t.completed_settlement,t.expected_settlement,t.intangible_assets,t.fixed_assets,t.fixed_assets_description,t.subtotal_costs,t.subtotal_costs_description,t.audit_settlement,t.audit_description,t.year1_settlement,t.year2_settlement,t.year3_settlement,t.year4_settlement,t.STATUS,t.remark,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag ,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName
+        FROM  t_reporting_table_research t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+    </sql>
+
+    <select id="selectTableResearchList" parameterType="TableResearch" resultMap="TableResearchResult">
+        <include refid="selectTableResearchVo"/>
+            where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 4)
+            <if test="taskId != null "> and t.task_id = #{taskId}</if>
+            <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+            <if test="projectType != null "> and t.project_type = #{projectType}</if>
+            <if test="number != null  and number != ''"> and t.number = #{number}</if>
+            <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+            <if test="status != null "> and t.status = #{status}</if>
+            <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+            <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+            <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+            <if test="selectType != null and selectType == 4"> and (t.status = 3 or  t.status = 5 ) </if>
+            <if test="deptIds != null and deptIds.size() > 0">
+                and t.dept_id in
+                <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            order by t.dept_id
+    </select>
+
+    <select id="selectTableResearchCountList" parameterType="TableResearch" resultMap="TableResearchResult">
+        SELECT t.id,t.task_id,t.dept_id,t.project_status,t.project_type,t.number,t.quantity,t.NAME,t.cooperative_unit,t.start_time,t.end_time,t.research_contents,t.deliverables,t.investment,t.completed_settlement,t.expected_settlement,t.intangible_assets,t.fixed_assets,t.fixed_assets_description,t.subtotal_costs,t.subtotal_costs_description,t.audit_settlement,t.audit_description,t.year1_settlement,t.year2_settlement,t.year3_settlement,t.year4_settlement,t.STATUS,t.remark,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag ,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName, u.nick_name as userName
+        FROM  t_reporting_table_research t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        LEFT JOIN sys_user u on t.create_by = u.user_name
+        where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 4)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="projectType != null "> and t.project_type = #{projectType}</if>
+        <if test="number != null  and number != ''"> and t.number = #{number}</if>
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        UNION ALL
+        SELECT NULL AS id, NULL AS task_id, t.dept_id, NULL AS project_status, NULL AS project_type, NULL AS number, SUM(t.quantity) AS quantity, '' AS `name`, NULL AS cooperative_unit, NULL AS start_time, NULL AS end_time, NULL AS research_contents, NULL AS deliverables, SUM(t.investment) AS investment, SUM(t.completed_settlement) AS completed_settlement, SUM(t.expected_settlement) AS expected_settlement, SUM(t.intangible_assets) AS intangible_assets, SUM(t.fixed_assets) AS fixed_assets, NULL AS fixed_assets_description, SUM(t.subtotal_costs) AS subtotal_costs, NULL AS subtotal_costs_description, SUM(t.audit_settlement) AS audit_settlement, NULL AS audit_description, SUM(t.year1_settlement) AS year1_settlement, SUM(t.year2_settlement) AS year2_settlement, SUM(t.year3_settlement) AS year3_settlement, SUM(t.year4_settlement) AS year4_settlement, 5 AS `status`, NULL AS remark, NULL AS create_by, NOW() AS create_time, NULL AS update_by, NULL AS update_time, NULL AS del_flag, NULL AS taskName, CONCAT(d.dept_name, '合计') AS deptName, NULL AS parentId, NULL AS parentName, NULL as userName
+        FROM  t_reporting_table_research t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 4)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="projectType != null "> and t.project_type = #{projectType}</if>
+        <if test="number != null  and number != ''"> and t.number = #{number}</if>
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY t.dept_id
+        ORDER BY dept_id, create_time
+    </select>
+
+    <select id="selectTableResearchById" parameterType="Long" resultMap="TableResearchResult">
+        <include refid="selectTableResearchVo"/>
+        where t.id = #{id}
+    </select>
+
+    <select id="budgetSummaryList" resultMap="TableResearchResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(quantity) as quantity,SUM(expected_settlement) as expected_settlement,SUM(intangible_assets) as intangible_assets,SUM(fixed_assets) as fixed_assets
+        FROM  `t_reporting_table_research` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 4)
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList2" resultMap="TableResearchResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(quantity) as quantity,SUM(expected_settlement) as expected_settlement,SUM(intangible_assets) as intangible_assets,SUM(fixed_assets) as fixed_assets, SUM(CASE WHEN t.status = 2 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_research` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 4)
+        and t.status != 1 and  t.status != 4
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList3" resultMap="TableResearchResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(quantity) as quantity,SUM(expected_settlement) as expected_settlement,SUM(intangible_assets) as intangible_assets,SUM(fixed_assets) as fixed_assets, SUM(CASE WHEN t.status = 3 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_research` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 4)
+        and (t.status = 3 or  t.status = 5)
+        GROUP BY d.parent_id
+    </select>
+
+    <insert id="insertTableResearch" parameterType="TableResearch" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_table_research
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="projectStatus != null">project_status,</if>
+            <if test="projectType != null">project_type,</if>
+            <if test="number != null">number,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="name != null">name,</if>
+            <if test="cooperativeUnit != null">cooperative_unit,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="researchContents != null">research_contents,</if>
+            <if test="deliverables != null">deliverables,</if>
+            <if test="investment != null">investment,</if>
+            <if test="completedSettlement != null">completed_settlement,</if>
+            <if test="expectedSettlement != null">expected_settlement,</if>
+            <if test="intangibleAssets != null">intangible_assets,</if>
+            <if test="fixedAssets != null">fixed_assets,</if>
+            <if test="fixedAssetsDescription != null">fixed_assets_description,</if>
+            <if test="subtotalCosts != null">subtotal_costs,</if>
+            <if test="subtotalCostsDescription != null">subtotal_costs_description,</if>
+            <if test="auditSettlement != null">audit_settlement,</if>
+            <if test="auditDescription != null">audit_description,</if>
+            <if test="year1Settlement != null">year1_settlement,</if>
+            <if test="year2Settlement != null">year2_settlement,</if>
+            <if test="year3Settlement != null">year3_settlement,</if>
+            <if test="year4Settlement != null">year4_settlement,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="projectStatus != null">#{projectStatus},</if>
+            <if test="projectType != null">#{projectType},</if>
+            <if test="number != null">#{number},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="name != null">#{name},</if>
+            <if test="cooperativeUnit != null">#{cooperativeUnit},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="researchContents != null">#{researchContents},</if>
+            <if test="deliverables != null">#{deliverables},</if>
+            <if test="investment != null">#{investment},</if>
+            <if test="completedSettlement != null">#{completedSettlement},</if>
+            <if test="expectedSettlement != null">#{expectedSettlement},</if>
+            <if test="intangibleAssets != null">#{intangibleAssets},</if>
+            <if test="fixedAssets != null">#{fixedAssets},</if>
+            <if test="fixedAssetsDescription != null">#{fixedAssetsDescription},</if>
+            <if test="subtotalCosts != null">#{subtotalCosts},</if>
+            <if test="subtotalCostsDescription != null">#{subtotalCostsDescription},</if>
+            <if test="auditSettlement != null">#{auditSettlement},</if>
+            <if test="auditDescription != null">#{auditDescription},</if>
+            <if test="year1Settlement != null">#{year1Settlement},</if>
+            <if test="year2Settlement != null">#{year2Settlement},</if>
+            <if test="year3Settlement != null">#{year3Settlement},</if>
+            <if test="year4Settlement != null">#{year4Settlement},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableResearch" parameterType="TableResearch">
+        update t_reporting_table_research
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            <if test="projectType != null">project_type = #{projectType},</if>
+            <if test="number != null">number = #{number},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="cooperativeUnit != null">cooperative_unit = #{cooperativeUnit},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="researchContents != null">research_contents = #{researchContents},</if>
+            <if test="deliverables != null">deliverables = #{deliverables},</if>
+            <if test="investment != null">investment = #{investment},</if>
+            <if test="completedSettlement != null">completed_settlement = #{completedSettlement},</if>
+            <if test="expectedSettlement != null">expected_settlement = #{expectedSettlement},</if>
+            <if test="intangibleAssets != null">intangible_assets = #{intangibleAssets},</if>
+            <if test="fixedAssets != null">fixed_assets = #{fixedAssets},</if>
+            <if test="fixedAssetsDescription != null">fixed_assets_description = #{fixedAssetsDescription},</if>
+            <if test="subtotalCosts != null">subtotal_costs = #{subtotalCosts},</if>
+            <if test="subtotalCostsDescription != null">subtotal_costs_description = #{subtotalCostsDescription},</if>
+            <if test="auditSettlement != null">audit_settlement = #{auditSettlement},</if>
+            <if test="auditDescription != null">audit_description = #{auditDescription},</if>
+            <if test="year1Settlement != null">year1_settlement = #{year1Settlement},</if>
+            <if test="year2Settlement != null">year2_settlement = #{year2Settlement},</if>
+            <if test="year3Settlement != null">year3_settlement = #{year3Settlement},</if>
+            <if test="year4Settlement != null">year4_settlement = #{year4Settlement},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableResearchById">
+        update t_reporting_table_research
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTableResearchByIds">
+        update t_reporting_table_research
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.TableInformationSystemVersionMapper">
+
+    <resultMap type="TableInformationSystemVersion" id="TableInformationSystemVersionResult">
+        <result property="id"    column="id"    />
+        <result property="versionId"    column="version_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="projectStatus"    column="project_status"    />
+        <result property="name"    column="name"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="situation"    column="situation"    />
+        <result property="contentProgress"    column="content_progress"    />
+        <result property="operationalTime"    column="operational_time"    />
+        <result property="investment"    column="investment"    />
+        <result property="completedSettlement"    column="completed_settlement"    />
+        <result property="actualSettlement"    column="actual_settlement"    />
+        <result property="intangibleAssets"    column="intangible_assets"    />
+        <result property="fixedAssets"    column="fixed_assets"    />
+        <result property="auditIntangibleAssets"    column="audit_intangible_assets"    />
+        <result property="auditFixedAssets"    column="audit_fixed_assets"    />
+        <result property="auditDescription"    column="audit_description"    />
+        <result property="year1Settlement"    column="year1_settlement"    />
+        <result property="year2Settlement"    column="year2_settlement"    />
+        <result property="year3Settlement"    column="year3_settlement"    />
+        <result property="year4Settlement"    column="year4_settlement"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectTableInformationSystemVersionVo">
+        select id, version_id, task_id, dept_id, project_status, name, quantity, situation, content_progress, operational_time, investment, completed_settlement, actual_settlement, intangible_assets, fixed_assets, audit_intangible_assets, audit_fixed_assets, audit_description,t.year1_settlement,t.year2_settlement,t.year3_settlement,t.year4_settlement, create_by, create_time from t_reporting_table_information_system_version
+    </sql>
+
+    <select id="selectTableInformationSystemVersionList" parameterType="TableInformationSystemVersion" resultMap="TableInformationSystemVersionResult">
+        <include refid="selectTableInformationSystemVersionVo"/>
+        <where>
+            <if test="versionId != null "> and version_id = #{versionId}</if>
+            <if test="taskId != null "> and task_id = #{taskId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="projectStatus != null "> and project_status = #{projectStatus}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="situation != null  and situation != ''"> and situation = #{situation}</if>
+            <if test="contentProgress != null  and contentProgress != ''"> and content_progress = #{contentProgress}</if>
+            <if test="operationalTime != null "> and operational_time = #{operationalTime}</if>
+            <if test="investment != null "> and investment = #{investment}</if>
+            <if test="completedSettlement != null "> and completed_settlement = #{completedSettlement}</if>
+            <if test="actualSettlement != null "> and actual_settlement = #{actualSettlement}</if>
+            <if test="intangibleAssets != null "> and intangible_assets = #{intangibleAssets}</if>
+            <if test="fixedAssets != null "> and fixed_assets = #{fixedAssets}</if>
+            <if test="auditIntangibleAssets != null "> and audit_intangible_assets = #{auditIntangibleAssets}</if>
+            <if test="auditFixedAssets != null  and auditFixedAssets != ''"> and audit_fixed_assets = #{auditFixedAssets}</if>
+            <if test="auditDescription != null  and auditDescription != ''"> and audit_description = #{auditDescription}</if>
+        </where>
+    </select>
+
+    <select id="selectTableInformationSystemVersionById" parameterType="Long" resultMap="TableInformationSystemVersionResult">
+            <include refid="selectTableInformationSystemVersionVo"/>
+            where id = #{id}
+    </select>
+
+    <insert id="insertTableInformationSystemVersion" parameterType="TableInformationSystemVersion" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_table_information_system_version
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="versionId != null">version_id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="projectStatus != null">project_status,</if>
+            <if test="name != null">name,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="situation != null">situation,</if>
+            <if test="contentProgress != null">content_progress,</if>
+            <if test="operationalTime != null">operational_time,</if>
+            <if test="investment != null">investment,</if>
+            <if test="completedSettlement != null">completed_settlement,</if>
+            <if test="actualSettlement != null">actual_settlement,</if>
+            <if test="intangibleAssets != null">intangible_assets,</if>
+            <if test="fixedAssets != null">fixed_assets,</if>
+            <if test="auditIntangibleAssets != null">audit_intangible_assets,</if>
+            <if test="auditFixedAssets != null">audit_fixed_assets,</if>
+            <if test="auditDescription != null">audit_description,</if>
+            <if test="year1Settlement != null">year1_settlement,</if>
+            <if test="year2Settlement != null">year2_settlement,</if>
+            <if test="year3Settlement != null">year3_settlement,</if>
+            <if test="year4Settlement != null">year4_settlement,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="versionId != null">#{versionId},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="projectStatus != null">#{projectStatus},</if>
+            <if test="name != null">#{name},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="situation != null">#{situation},</if>
+            <if test="contentProgress != null">#{contentProgress},</if>
+            <if test="operationalTime != null">#{operationalTime},</if>
+            <if test="investment != null">#{investment},</if>
+            <if test="completedSettlement != null">#{completedSettlement},</if>
+            <if test="actualSettlement != null">#{actualSettlement},</if>
+            <if test="intangibleAssets != null">#{intangibleAssets},</if>
+            <if test="fixedAssets != null">#{fixedAssets},</if>
+            <if test="auditIntangibleAssets != null">#{auditIntangibleAssets},</if>
+            <if test="auditFixedAssets != null">#{auditFixedAssets},</if>
+            <if test="auditDescription != null">#{auditDescription},</if>
+            <if test="year1Settlement != null">#{year1Settlement},</if>
+            <if test="year2Settlement != null">#{year2Settlement},</if>
+            <if test="year3Settlement != null">#{year3Settlement},</if>
+            <if test="year4Settlement != null">#{year4Settlement},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableInformationSystemVersion" parameterType="TableInformationSystemVersion">
+        update t_reporting_table_information_system_version
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="versionId != null">version_id = #{versionId},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="situation != null">situation = #{situation},</if>
+            <if test="contentProgress != null">content_progress = #{contentProgress},</if>
+            <if test="operationalTime != null">operational_time = #{operationalTime},</if>
+            <if test="investment != null">investment = #{investment},</if>
+            <if test="completedSettlement != null">completed_settlement = #{completedSettlement},</if>
+            <if test="actualSettlement != null">actual_settlement = #{actualSettlement},</if>
+            <if test="intangibleAssets != null">intangible_assets = #{intangibleAssets},</if>
+            <if test="fixedAssets != null">fixed_assets = #{fixedAssets},</if>
+            <if test="auditIntangibleAssets != null">audit_intangible_assets = #{auditIntangibleAssets},</if>
+            <if test="auditFixedAssets != null">audit_fixed_assets = #{auditFixedAssets},</if>
+            <if test="auditDescription != null">audit_description = #{auditDescription},</if>
+            <if test="year1Settlement != null">year1_settlement = #{year1Settlement},</if>
+            <if test="year2Settlement != null">year2_settlement = #{year2Settlement},</if>
+            <if test="year3Settlement != null">year3_settlement = #{year3Settlement},</if>
+            <if test="year4Settlement != null">year4_settlement = #{year4Settlement},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableInformationSystemVersionById">
+        update t_reporting_table_information_system_version
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTableInformationSystemVersionByIds">
+        update t_reporting_table_information_system_version
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

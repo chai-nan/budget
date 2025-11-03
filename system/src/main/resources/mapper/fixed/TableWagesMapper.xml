@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.TableWagesMapper">
+
+    <resultMap type="TableWages" id="TableWagesResult">
+            <result property="id"    column="id"    />
+            <result property="taskId"    column="task_id"    />
+            <result property="deptId"    column="dept_id"    />
+            <result property="staff"    column="staff"    />
+            <result property="labor"    column="labor"    />
+            <result property="welfare"    column="welfare"    />
+            <result property="education"    column="education"    />
+            <result property="unionFunds"    column="union_funds"    />
+            <result property="endowment"    column="endowment"    />
+            <result property="workInjury"    column="work_injury"    />
+            <result property="unemployment"    column="unemployment"    />
+            <result property="medical"    column="medical"    />
+            <result property="maternity"    column="maternity"    />
+            <result property="social"    column="social"    />
+            <result property="provident"    column="provident"    />
+            <result property="annuity"    column="annuity"    />
+            <result property="research"    column="research"    />
+            <result property="status"    column="status"    />
+            <result property="createBy"    column="create_by"    />
+            <result property="createTime"    column="create_time"    />
+            <result property="updateBy"    column="update_by"    />
+            <result property="updateTime"    column="update_time"    />
+            <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectTableWagesVo">
+        SELECT t.id, t.task_id,t.dept_id,t.staff,t.labor,COALESCE(t.staff, 0) + COALESCE(t.labor, 0) AS total,t.welfare,t.education,t.union_funds,t.endowment,t.work_injury,t.unemployment,t.medical,t.maternity,t.social,t.provident,t.annuity,t.research,
+               COALESCE ( t.staff, 0 ) + COALESCE ( t.labor, 0 ) + COALESCE ( t.welfare, 0 ) + COALESCE ( t.education, 0 ) + COALESCE ( t.union_funds, 0 ) + COALESCE ( t.social, 0 ) + COALESCE ( t.provident, 0 ) + COALESCE ( t.annuity, 0 ) + COALESCE ( t.research, 0 ) AS allTotal,
+               t.STATUS,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,d.dept_name as deptName, pd.dept_name as parentName, d.type AS subjectType
+        FROM t_reporting_table_wages t
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+    </sql>
+
+    <select id="selectTableWagesList" parameterType="TableWages" resultMap="TableWagesResult">
+        <include refid="selectTableWagesVo"/>
+            where t.del_flag = '0'
+            <if test="taskId != null "> and t.task_id = #{taskId}</if>
+            <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+            <if test="staff != null "> and t.staff = #{staff}</if>
+            <if test="labor != null "> and t.labor = #{labor}</if>
+            <if test="welfare != null "> and t.welfare = #{welfare}</if>
+            <if test="education != null "> and t.education = #{education}</if>
+            <if test="unionFunds != null "> and t.union_funds = #{unionFunds}</if>
+            <if test="endowment != null "> and t.endowment = #{endowment}</if>
+            <if test="workInjury != null "> and t.work_injury = #{workInjury}</if>
+            <if test="unemployment != null "> and t.unemployment = #{unemployment}</if>
+            <if test="medical != null "> and t.medical = #{medical}</if>
+            <if test="maternity != null "> and t.maternity = #{maternity}</if>
+            <if test="social != null "> and t.social = #{social}</if>
+            <if test="provident != null "> and t.provident = #{provident}</if>
+            <if test="annuity != null "> and t.annuity = #{annuity}</if>
+            <if test="research != null "> and t.research = #{research}</if>
+            <if test="status != null "> and t.status = #{status}</if>
+            <if test="deptParentId != null "> and d.parent_id = #{deptParentId}</if>
+            <if test="selectType != null and selectType == 3">  and t.status != 1 </if>
+    </select>
+
+    <select id="selectTableWagesById" parameterType="Long" resultMap="TableWagesResult">
+            <include refid="selectTableWagesVo"/>
+            where t.id = #{id}
+    </select>
+
+    <select id="selectTableWagesByOne" resultType="net.cmkj.fixed.domain.TableWages">
+        <include refid="selectTableWagesVo"/>
+        where t.task_id = #{taskId} and t.dept_id = #{deptId} and t.del_flag = '0'
+    </select>
+
+    <select id="budgetSummary2" resultType="java.util.Map">
+        SELECT  d.parent_id as deptParentId,  ROUND(SUM(t.staff), 2) as staff,  ROUND(SUM(t.labor), 2) as labor,  ROUND(SUM(t.welfare), 2) as welfare,  ROUND(SUM(t.education), 2) as education,  ROUND(SUM(t.union_funds), 2) as union_funds,  ROUND(SUM(t.endowment), 2) as endowment,  ROUND(SUM(t.work_injury), 2) as work_injury,  ROUND(SUM(t.unemployment), 2) as unemployment,  ROUND(SUM(t.medical), 2) as medical,  ROUND(SUM(t.maternity), 2) as maternity,  ROUND(SUM(t.social), 2) as social,  ROUND(SUM(t.provident), 2) as provident,  ROUND(SUM(t.annuity), 2) as annuity,  ROUND(SUM(t.research), 2) as research
+        FROM  `t_reporting_table_wages` t
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        WHERE d.parent_id != 0 and t.del_flag = '0' and (t.status = 2 or t.status = 5)  and t.task_id =  #{taskId} GROUP BY d.parent_id
+    </select>
+
+    <select id="selectTableWagesByParentDept" resultType="net.cmkj.fixed.domain.TableWages">
+        SELECT t.task_id as task_id,SUM(t.staff) as staff,SUM(t.labor) as labor,SUM(t.welfare) as welfare,SUM(t.education) as education,SUM(t.union_funds) as union_funds,SUM(t.endowment) as endowment,SUM(t.work_injury) as work_injury,SUM(t.unemployment) as unemployment,SUM(t.medical) as medical,SUM(t.maternity) as maternity,SUM(t.social) as social,SUM(t.provident) as provident,SUM(t.annuity) as annuity,SUM(t.research) as research,pd.dept_id,pd.dept_name AS deptName
+        FROM t_reporting_table_wages t
+        LEFT JOIN sys_dept d ON t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        WHERE pd.dept_id = #{parentId} and t.task_id = #{taskId}
+        <choose>
+            <when test="selectType == 1">
+                and 1 = 1
+            </when>
+            <when test="selectType == 2">
+                and t.status != 1 and t.status != 6
+            </when>
+            <otherwise>
+                and t.status = 0
+            </otherwise>
+        </choose>
+        GROUP BY pd.dept_id
+    </select>
+
+    <select id="selectSummaryList" resultType="java.util.Map">
+        <include refid="selectTableWagesVo"/>
+        where t.del_flag = '0'
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="staff != null "> and t.staff = #{staff}</if>
+        <if test="labor != null "> and t.labor = #{labor}</if>
+        <if test="welfare != null "> and t.welfare = #{welfare}</if>
+        <if test="education != null "> and t.education = #{education}</if>
+        <if test="unionFunds != null "> and t.union_funds = #{unionFunds}</if>
+        <if test="endowment != null "> and t.endowment = #{endowment}</if>
+        <if test="workInjury != null "> and t.work_injury = #{workInjury}</if>
+        <if test="unemployment != null "> and t.unemployment = #{unemployment}</if>
+        <if test="medical != null "> and t.medical = #{medical}</if>
+        <if test="maternity != null "> and t.maternity = #{maternity}</if>
+        <if test="social != null "> and t.social = #{social}</if>
+        <if test="provident != null "> and t.provident = #{provident}</if>
+        <if test="annuity != null "> and t.annuity = #{annuity}</if>
+        <if test="research != null "> and t.research = #{research}</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="deptParentId != null "> and d.parent_id = #{deptParentId}</if>
+        <if test="selectType != null and selectType == 3">  and t.status != 1 and t.status != 6</if>
+    </select>
+
+    <select id="budgetSummary3" resultType="java.util.Map">
+        SELECT  d.parent_id as deptParentId,  ROUND(SUM(t.staff), 2) as staff,  ROUND(SUM(t.labor), 2) as labor,  ROUND(SUM(t.welfare), 2) as welfare,  ROUND(SUM(t.education), 2) as education,  ROUND(SUM(t.union_funds), 2) as union_funds,  ROUND(SUM(t.endowment), 2) as endowment,  ROUND(SUM(t.work_injury), 2) as work_injury,  ROUND(SUM(t.unemployment), 2) as unemployment,  ROUND(SUM(t.medical), 2) as medical,  ROUND(SUM(t.maternity), 2) as maternity,  ROUND(SUM(t.social), 2) as social,  ROUND(SUM(t.provident), 2) as provident,  ROUND(SUM(t.annuity), 2) as annuity,  ROUND(SUM(t.research), 2) as research,ROUND( SUM( t.staff + t.labor + t.welfare + t.education + t.union_funds + t.endowment + t.work_injury + t.unemployment + t.medical + t.social + t.provident + t.annuity + t.research ), 2 ) AS budgetTotal
+        FROM  `t_reporting_table_wages` t
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        WHERE d.parent_id != 0 and t.del_flag = '0' and t.status =  #{status} and t.task_id =  #{taskId}
+    </select>
+
+    <select id="budgetSummary1" resultType="java.util.Map">
+        <include refid="selectTableWagesVo"/>
+        where t.del_flag = '0'          and (t.status = 2 or t.status = 5)
+        <if test="taskId != null "> and t.task_id =  #{taskId}</if>
+    </select>
+    <select id="selectExportList" parameterType="TableWages" resultMap="TableWagesResult">
+        SELECT  id,task_id,dept_id,staff,labor,total,welfare,education,union_funds,endowment,  work_injury,  unemployment,  medical,  maternity,  social,  provident,  annuity,  research,  allTotal,  STATUS,  create_by,  create_time,  update_by,  update_time,  del_flag,  deptName,  parentName
+        FROM (SELECT   t.id, t.task_id, t.dept_id, t.staff, t.labor, COALESCE(t.staff, 0) + COALESCE(t.labor, 0) AS total, t.welfare, t.education, t.union_funds, t.endowment, t.work_injury, t.unemployment, t.medical, t.maternity, t.social, t.provident, t.annuity, t.research, COALESCE(t.staff, 0) + COALESCE(t.labor, 0) + COALESCE(t.welfare, 0) + COALESCE(t.education, 0) + COALESCE(t.union_funds, 0) + COALESCE(t.social, 0) + COALESCE(t.provident, 0) + COALESCE(t.annuity, 0) + COALESCE(t.research, 0) AS allTotal, t.STATUS, t.create_by, t.create_time, t.update_by, t.update_time, t.del_flag, d.dept_name AS deptName, pd.dept_name AS parentName
+        FROM t_reporting_table_wages t
+        LEFT JOIN sys_dept d ON t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd ON d.parent_id = pd.dept_id
+        where t.del_flag = '0'
+        <if test="selectType != null and selectType == 3">  and t.status != 1 and t.status != 6</if>
+        ) AS Detailed
+        UNION ALL
+        SELECT  NULL, NULL, NULL, SUM(staff), SUM(labor), SUM(COALESCE(staff, 0) + COALESCE(labor, 0)), SUM(welfare), SUM(education), SUM(union_funds), SUM(endowment), SUM(work_injury), SUM(unemployment), SUM(medical), SUM(maternity), SUM(social), SUM(provident), SUM(annuity), SUM(research), SUM(COALESCE(staff, 0) + COALESCE(labor, 0) + COALESCE(welfare, 0) + COALESCE(education, 0) + COALESCE(union_funds, 0) + COALESCE(social, 0) + COALESCE(provident, 0) + COALESCE(annuity, 0) + COALESCE(research, 0)), NULL, NULL, NULL, NULL, NULL, NULL, '', '合计'
+        FROM t_reporting_table_wages
+        where del_flag = '0'
+        <if test="selectType != null and selectType == 3">  and status != 1 and status != 6</if>
+    </select>
+
+
+    <insert id="insertTableWages" parameterType="TableWages">
+        insert into t_reporting_table_wages
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="staff != null">staff,</if>
+            <if test="labor != null">labor,</if>
+            <if test="welfare != null">welfare,</if>
+            <if test="education != null">education,</if>
+            <if test="unionFunds != null">union_funds,</if>
+            <if test="endowment != null">endowment,</if>
+            <if test="workInjury != null">work_injury,</if>
+            <if test="unemployment != null">unemployment,</if>
+            <if test="medical != null">medical,</if>
+            <if test="maternity != null">maternity,</if>
+            <if test="social != null">social,</if>
+            <if test="provident != null">provident,</if>
+            <if test="annuity != null">annuity,</if>
+            <if test="research != null">research,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="staff != null">#{staff},</if>
+            <if test="labor != null">#{labor},</if>
+            <if test="welfare != null">#{welfare},</if>
+            <if test="education != null">#{education},</if>
+            <if test="unionFunds != null">#{unionFunds},</if>
+            <if test="endowment != null">#{endowment},</if>
+            <if test="workInjury != null">#{workInjury},</if>
+            <if test="unemployment != null">#{unemployment},</if>
+            <if test="medical != null">#{medical},</if>
+            <if test="maternity != null">#{maternity},</if>
+            <if test="social != null">#{social},</if>
+            <if test="provident != null">#{provident},</if>
+            <if test="annuity != null">#{annuity},</if>
+            <if test="research != null">#{research},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableWages" parameterType="TableWages">
+        update t_reporting_table_wages
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="staff != null">staff = #{staff},</if>
+            <if test="labor != null">labor = #{labor},</if>
+            <if test="welfare != null">welfare = #{welfare},</if>
+            <if test="education != null">education = #{education},</if>
+            <if test="unionFunds != null">union_funds = #{unionFunds},</if>
+            <if test="endowment != null">endowment = #{endowment},</if>
+            <if test="workInjury != null">work_injury = #{workInjury},</if>
+            <if test="unemployment != null">unemployment = #{unemployment},</if>
+            <if test="medical != null">medical = #{medical},</if>
+            <if test="maternity != null">maternity = #{maternity},</if>
+            <if test="social != null">social = #{social},</if>
+            <if test="provident != null">provident = #{provident},</if>
+            <if test="annuity != null">annuity = #{annuity},</if>
+            <if test="research != null">research = #{research},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableWagesById" parameterType="Long">
+        update t_reporting_table_wages set del_flag = '2'  where id = #{id}
+    </delete>
+
+    <delete id="deleteTableWagesByIds" parameterType="String">
+        update t_reporting_table_wages set del_flag = '2'  where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.TableCharityMapper">
+
+    <resultMap type="TableCharity" id="TableCharityResult">
+        <result property="id"    column="id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="budget"    column="budget"    />
+        <result property="description"    column="description"    />
+        <result property="auditBudget"    column="audit_budget"    />
+        <result property="auditDescription"    column="audit_description"    />
+        <result property="lastBudget"    column="last_budget"    />
+        <result property="lastAccumulatedExpenses"    column="last_accumulated_expenses"    />
+        <result property="adjustmentBudget"    column="adjustment_budget"    />
+        <result property="adjustmentDescription"    column="adjustment_description"    />
+        <result property="projectedCosts"    column="projected_costs"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectTableCharityVo">
+        SELECT t.id,t.task_id,t.dept_id,t.budget,t.description,t.audit_budget,t.audit_description,t.last_budget,t.last_accumulated_expenses,t.adjustment_budget,t.adjustment_description,t.projected_costs,t.`status`,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName
+        FROM t_reporting_table_charity t
+        LEFT JOIN t_reporting_task tk ON t.task_id = tk.id
+        LEFT JOIN sys_dept d ON t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+    </sql>
+
+    <select id="selectTableCharityList" parameterType="TableCharity" resultMap="TableCharityResult">
+        <include refid="selectTableCharityVo"/>
+            where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 6)
+            <if test="taskId != null "> and t.task_id = #{taskId}</if>
+            <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+            <if test="budget != null "> and t.budget = #{budget}</if>
+            <if test="description != null  and description != ''"> and t.description = #{description}</if>
+            <if test="auditBudget != null "> and t.audit_budget = #{auditBudget}</if>
+            <if test="auditDescription != null  and auditDescription != ''"> and t.audit_description = #{auditDescription}</if>
+            <if test="lastBudget != null "> and t.last_budget = #{lastBudget}</if>
+            <if test="lastAccumulatedExpenses != null "> and t.last_accumulated_expenses = #{lastAccumulatedExpenses}</if>
+            <if test="adjustmentBudget != null "> and t.adjustment_budget = #{adjustmentBudget}</if>
+            <if test="adjustmentDescription != null  and adjustmentDescription != ''"> and t.adjustment_description = #{adjustmentDescription}</if>
+            <if test="projectedCosts != null "> and t.projected_costs = #{projectedCosts}</if>
+            <if test="status != null "> and t.status = #{status}</if>
+            <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+            <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+            <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+            <if test="selectType != null and selectType == 4"> and (t.status = 3 or  t.status = 5 ) </if>
+            <if test="deptIds != null and deptIds.size() > 0">
+                and t.dept_id in
+                <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            order by t.dept_id
+    </select>
+
+    <select id="selectTableCharityCountList" parameterType="TableCharity" resultMap="TableCharityResult">
+        SELECT t.id,t.task_id,t.dept_id,t.budget,t.description,t.audit_budget,t.audit_description,t.last_budget,t.last_accumulated_expenses,t.adjustment_budget,t.adjustment_description,t.projected_costs,t.`status`,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName, u.nick_name as userName
+        FROM t_reporting_table_charity t
+        LEFT JOIN t_reporting_task tk ON t.task_id = tk.id
+        LEFT JOIN sys_dept d ON t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        LEFT JOIN sys_user u on t.create_by = u.user_name
+        where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 6)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="budget != null "> and t.budget = #{budget}</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        UNION ALL
+        SELECT NULL AS id, NULL AS task_id, t.dept_id, SUM(t.budget) AS budget, NULL AS description, SUM(t.audit_budget) AS audit_budget, NULL AS audit_description, SUM(t.last_budget) AS last_budget, SUM(t.last_accumulated_expenses) AS last_accumulated_expenses, SUM(t.adjustment_budget) AS adjustment_budget, NULL AS adjustment_description, SUM(t.projected_costs) AS projected_costs, 5 AS `status`, NULL AS create_by, NOW() AS create_time, NULL AS update_by, NULL AS update_time, NULL AS del_flag, NULL AS taskName, CONCAT(d.dept_name, '合计') AS deptName, NULL AS parentId, NULL AS parentName, NULL as userName
+        FROM t_reporting_table_charity t
+        LEFT JOIN t_reporting_task tk ON t.task_id = tk.id
+        LEFT JOIN sys_dept d ON t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 6)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="budget != null "> and t.budget = #{budget}</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY t.dept_id
+        ORDER BY dept_id, create_time
+    </select>
+
+    <select id="selectTableCharityById" parameterType="Long" resultMap="TableCharityResult">
+        <include refid="selectTableCharityVo"/>
+        where t.id = #{id}
+    </select>
+
+    <select id="budgetSummaryList" resultMap="TableCharityResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(budget) as budget,SUM(audit_budget) as audit_budget,SUM(adjustment_budget) as adjustment_budget
+        FROM  `t_reporting_table_charity` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 6)
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList2" resultMap="TableCharityResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(budget) as budget,SUM(audit_budget) as audit_budget,SUM(adjustment_budget) as adjustment_budget, SUM(CASE WHEN t.status = 2 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_charity` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 6)
+        and t.status != 1 and  t.status != 4
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList3" resultMap="TableCharityResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(budget) as budget,SUM(audit_budget) as audit_budget,SUM(adjustment_budget) as adjustment_budget, SUM(CASE WHEN t.status = 3 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_charity` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 6)
+        and (t.status = 3 or  t.status = 5)
+        GROUP BY d.parent_id
+    </select>
+
+    <insert id="insertTableCharity" parameterType="TableCharity" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_table_charity
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="budget != null">budget,</if>
+            <if test="description != null">description,</if>
+            <if test="auditBudget != null">audit_budget,</if>
+            <if test="auditDescription != null">audit_description,</if>
+            <if test="lastBudget != null">last_budget,</if>
+            <if test="lastAccumulatedExpenses != null">last_accumulated_expenses,</if>
+            <if test="adjustmentBudget != null">adjustment_budget,</if>
+            <if test="adjustmentDescription != null">adjustment_description,</if>
+            <if test="projectedCosts != null">projected_costs,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="budget != null">#{budget},</if>
+            <if test="description != null">#{description},</if>
+            <if test="auditBudget != null">#{auditBudget},</if>
+            <if test="auditDescription != null">#{auditDescription},</if>
+            <if test="lastBudget != null">#{lastBudget},</if>
+            <if test="lastAccumulatedExpenses != null">#{lastAccumulatedExpenses},</if>
+            <if test="adjustmentBudget != null">#{adjustmentBudget},</if>
+            <if test="adjustmentDescription != null">#{adjustmentDescription},</if>
+            <if test="projectedCosts != null">#{projectedCosts},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableCharity" parameterType="TableCharity">
+        update t_reporting_table_charity
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="budget != null">budget = #{budget},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="auditBudget != null">audit_budget = #{auditBudget},</if>
+            <if test="auditDescription != null">audit_description = #{auditDescription},</if>
+            <if test="lastBudget != null">last_budget = #{lastBudget},</if>
+            <if test="lastAccumulatedExpenses != null">last_accumulated_expenses = #{lastAccumulatedExpenses},</if>
+            <if test="adjustmentBudget != null">adjustment_budget = #{adjustmentBudget},</if>
+            <if test="adjustmentDescription != null">adjustment_description = #{adjustmentDescription},</if>
+            <if test="projectedCosts != null">projected_costs = #{projectedCosts},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableCharityById">
+        update t_reporting_table_charity
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTableCharityByIds">
+        update t_reporting_table_charity
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

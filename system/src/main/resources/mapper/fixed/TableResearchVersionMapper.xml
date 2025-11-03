@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.TableResearchVersionMapper">
+
+    <resultMap type="TableResearchVersion" id="TableResearchVersionResult">
+        <result property="id"    column="id"    />
+        <result property="versionId"    column="version_id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="projectStatus"    column="project_status"    />
+        <result property="projectType"    column="project_type"    />
+        <result property="number"    column="number"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="name"    column="name"    />
+        <result property="cooperativeUnit"    column="cooperative_unit"    />
+        <result property="startTime"    column="start_time"    />
+        <result property="endTime"    column="end_time"    />
+        <result property="researchContents"    column="research_contents"    />
+        <result property="deliverables"    column="deliverables"    />
+        <result property="investment"    column="investment"    />
+        <result property="completedSettlement"    column="completed_settlement"    />
+        <result property="expectedSettlement"    column="expected_settlement"    />
+        <result property="intangibleAssets"    column="intangible_assets"    />
+        <result property="fixedAssets"    column="fixed_assets"    />
+        <result property="fixedAssetsDescription"    column="fixed_assets_description"    />
+        <result property="subtotalCosts"    column="subtotal_costs"    />
+        <result property="subtotalCostsDescription"    column="subtotal_costs_description"    />
+        <result property="auditSettlement"    column="audit_settlement"    />
+        <result property="auditDescription"    column="audit_description"    />
+        <result property="year1Settlement"    column="year1_settlement"    />
+        <result property="year2Settlement"    column="year2_settlement"    />
+        <result property="year3Settlement"    column="year3_settlement"    />
+        <result property="year4Settlement"    column="year4_settlement"    />
+        <result property="remark"    column="remark"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectTableResearchVersionVo">
+        select id, version_id, task_id, dept_id, project_status, project_type, number, quantity, name, cooperative_unit, start_time, end_time, research_contents, deliverables, investment, completed_settlement, expected_settlement, intangible_assets, fixed_assets, fixed_assets_description, subtotal_costs, subtotal_costs_description, audit_settlement, audit_description,t.year1_settlement,t.year2_settlement,t.year3_settlement,t.year4_settlement, remark, create_by, create_time from t_reporting_table_research_version
+    </sql>
+
+    <select id="selectTableResearchVersionList" parameterType="TableResearchVersion" resultMap="TableResearchVersionResult">
+        <include refid="selectTableResearchVersionVo"/>
+        <where>
+            <if test="versionId != null "> and version_id = #{versionId}</if>
+            <if test="taskId != null "> and task_id = #{taskId}</if>
+            <if test="deptId != null "> and dept_id = #{deptId}</if>
+            <if test="projectStatus != null "> and project_status = #{projectStatus}</if>
+            <if test="projectType != null "> and project_type = #{projectType}</if>
+            <if test="number != null  and number != ''"> and number = #{number}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="cooperativeUnit != null  and cooperativeUnit != ''"> and cooperative_unit = #{cooperativeUnit}</if>
+            <if test="startTime != null "> and start_time = #{startTime}</if>
+            <if test="endTime != null "> and end_time = #{endTime}</if>
+            <if test="researchContents != null  and researchContents != ''"> and research_contents = #{researchContents}</if>
+            <if test="deliverables != null  and deliverables != ''"> and deliverables = #{deliverables}</if>
+            <if test="investment != null "> and investment = #{investment}</if>
+            <if test="completedSettlement != null "> and completed_settlement = #{completedSettlement}</if>
+            <if test="expectedSettlement != null "> and expected_settlement = #{expectedSettlement}</if>
+            <if test="intangibleAssets != null "> and intangible_assets = #{intangibleAssets}</if>
+            <if test="fixedAssets != null "> and fixed_assets = #{fixedAssets}</if>
+            <if test="fixedAssetsDescription != null  and fixedAssetsDescription != ''"> and fixed_assets_description = #{fixedAssetsDescription}</if>
+            <if test="subtotalCosts != null "> and subtotal_costs = #{subtotalCosts}</if>
+            <if test="subtotalCostsDescription != null  and subtotalCostsDescription != ''"> and subtotal_costs_description = #{subtotalCostsDescription}</if>
+            <if test="auditSettlement != null "> and audit_settlement = #{auditSettlement}</if>
+            <if test="auditDescription != null  and auditDescription != ''"> and audit_description = #{auditDescription}</if>
+        </where>
+    </select>
+
+    <select id="selectTableResearchVersionById" parameterType="Long" resultMap="TableResearchVersionResult">
+            <include refid="selectTableResearchVersionVo"/>
+            where id = #{id}
+    </select>
+
+    <insert id="insertTableResearchVersion" parameterType="TableResearchVersion" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_table_research_version
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="versionId != null">version_id,</if>
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="projectStatus != null">project_status,</if>
+            <if test="projectType != null">project_type,</if>
+            <if test="number != null">number,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="name != null">name,</if>
+            <if test="cooperativeUnit != null">cooperative_unit,</if>
+            <if test="startTime != null">start_time,</if>
+            <if test="endTime != null">end_time,</if>
+            <if test="researchContents != null">research_contents,</if>
+            <if test="deliverables != null">deliverables,</if>
+            <if test="investment != null">investment,</if>
+            <if test="completedSettlement != null">completed_settlement,</if>
+            <if test="expectedSettlement != null">expected_settlement,</if>
+            <if test="intangibleAssets != null">intangible_assets,</if>
+            <if test="fixedAssets != null">fixed_assets,</if>
+            <if test="fixedAssetsDescription != null">fixed_assets_description,</if>
+            <if test="subtotalCosts != null">subtotal_costs,</if>
+            <if test="subtotalCostsDescription != null">subtotal_costs_description,</if>
+            <if test="auditSettlement != null">audit_settlement,</if>
+            <if test="auditDescription != null">audit_description,</if>
+            <if test="year1Settlement != null">year1_settlement,</if>
+            <if test="year2Settlement != null">year2_settlement,</if>
+            <if test="year3Settlement != null">year3_settlement,</if>
+            <if test="year4Settlement != null">year4_settlement,</if>
+            <if test="remark != null">remark,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="versionId != null">#{versionId},</if>
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="projectStatus != null">#{projectStatus},</if>
+            <if test="projectType != null">#{projectType},</if>
+            <if test="number != null">#{number},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="name != null">#{name},</if>
+            <if test="cooperativeUnit != null">#{cooperativeUnit},</if>
+            <if test="startTime != null">#{startTime},</if>
+            <if test="endTime != null">#{endTime},</if>
+            <if test="researchContents != null">#{researchContents},</if>
+            <if test="deliverables != null">#{deliverables},</if>
+            <if test="investment != null">#{investment},</if>
+            <if test="completedSettlement != null">#{completedSettlement},</if>
+            <if test="expectedSettlement != null">#{expectedSettlement},</if>
+            <if test="intangibleAssets != null">#{intangibleAssets},</if>
+            <if test="fixedAssets != null">#{fixedAssets},</if>
+            <if test="fixedAssetsDescription != null">#{fixedAssetsDescription},</if>
+            <if test="subtotalCosts != null">#{subtotalCosts},</if>
+            <if test="subtotalCostsDescription != null">#{subtotalCostsDescription},</if>
+            <if test="auditSettlement != null">#{auditSettlement},</if>
+            <if test="auditDescription != null">#{auditDescription},</if>
+            <if test="year1Settlement != null">#{year1Settlement},</if>
+            <if test="year2Settlement != null">#{year2Settlement},</if>
+            <if test="year3Settlement != null">#{year3Settlement},</if>
+            <if test="year4Settlement != null">#{year4Settlement},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableResearchVersion" parameterType="TableResearchVersion">
+        update t_reporting_table_research_version
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="versionId != null">version_id = #{versionId},</if>
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            <if test="projectType != null">project_type = #{projectType},</if>
+            <if test="number != null">number = #{number},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="cooperativeUnit != null">cooperative_unit = #{cooperativeUnit},</if>
+            <if test="startTime != null">start_time = #{startTime},</if>
+            <if test="endTime != null">end_time = #{endTime},</if>
+            <if test="researchContents != null">research_contents = #{researchContents},</if>
+            <if test="deliverables != null">deliverables = #{deliverables},</if>
+            <if test="investment != null">investment = #{investment},</if>
+            <if test="completedSettlement != null">completed_settlement = #{completedSettlement},</if>
+            <if test="expectedSettlement != null">expected_settlement = #{expectedSettlement},</if>
+            <if test="intangibleAssets != null">intangible_assets = #{intangibleAssets},</if>
+            <if test="fixedAssets != null">fixed_assets = #{fixedAssets},</if>
+            <if test="fixedAssetsDescription != null">fixed_assets_description = #{fixedAssetsDescription},</if>
+            <if test="subtotalCosts != null">subtotal_costs = #{subtotalCosts},</if>
+            <if test="subtotalCostsDescription != null">subtotal_costs_description = #{subtotalCostsDescription},</if>
+            <if test="auditSettlement != null">audit_settlement = #{auditSettlement},</if>
+            <if test="auditDescription != null">audit_description = #{auditDescription},</if>
+            <if test="year1Settlement != null">year1_settlement = #{year1Settlement},</if>
+            <if test="year2Settlement != null">year2_settlement = #{year2Settlement},</if>
+            <if test="year3Settlement != null">year3_settlement = #{year3Settlement},</if>
+            <if test="year4Settlement != null">year4_settlement = #{year4Settlement},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableResearchVersionById">
+        update t_reporting_table_research_version
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTableResearchVersionByIds">
+        update t_reporting_table_research_version
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

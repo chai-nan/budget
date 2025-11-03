@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.TableStationMapper">
+
+    <resultMap type="TableStation" id="TableStationResult">
+        <result property="id"    column="id"    />
+        <result property="taskId"    column="task_id"    />
+        <result property="deptId"    column="dept_id"    />
+        <result property="projectStatus"    column="project_status"    />
+        <result property="projectType"    column="project_type"    />
+        <result property="name"    column="name"    />
+        <result property="situation"    column="situation"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="contentProgress"    column="content_progress"    />
+        <result property="investment"    column="investment"    />
+        <result property="completedSettlement"    column="completed_settlement"    />
+        <result property="actualSettlement"    column="actual_settlement"    />
+        <result property="details"    column="details"    />
+        <result property="expectedSettlement"    column="expected_settlement"    />
+        <result property="auditSettlement"    column="audit_settlement"    />
+        <result property="auditDescription"    column="audit_description"    />
+        <result property="year1Settlement"    column="year1_settlement"    />
+        <result property="year2Settlement"    column="year2_settlement"    />
+        <result property="year3Settlement"    column="year3_settlement"    />
+        <result property="year4Settlement"    column="year4_settlement"    />
+        <result property="status"    column="status"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectTableStationVo">
+        SELECT t.id,t.task_id,t.dept_id,t.project_status,t.project_type,t.`name`,t.situation,t.quantity,t.content_progress,t.investment,t.completed_settlement,t.actual_settlement,t.details,t.expected_settlement,t.audit_settlement,t.audit_description,t.year1_settlement,t.year2_settlement,t.year3_settlement,t.year4_settlement,t.`status`,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName
+        FROM  t_reporting_table_station t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+    </sql>
+
+    <select id="selectTableStationList" parameterType="TableStation" resultMap="TableStationResult">
+        <include refid="selectTableStationVo"/>
+            where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 3)
+            <if test="taskId != null "> and t.task_id = #{taskId}</if>
+            <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+            <if test="projectStatus != null "> and t.project_status = #{projectStatus}</if>
+            <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+            <if test="status != null "> and t.status = #{status}</if>
+            <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+            <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+            <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+            <if test="selectType != null and selectType == 4"> and (t.status = 3 or  t.status = 5 ) </if>
+            <if test="deptIds != null and deptIds.size() > 0">
+                and t.dept_id in
+                <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            order by t.dept_id
+    </select>
+
+    <select id="selectTableStationCountList" parameterType="TableStation" resultMap="TableStationResult">
+        SELECT t.id,t.task_id,t.dept_id,t.project_status,t.project_type,t.`name`,t.situation,t.quantity,t.content_progress,t.investment,t.completed_settlement,t.actual_settlement,t.details,t.expected_settlement,t.audit_settlement,t.audit_description,t.year1_settlement,t.year2_settlement,t.year3_settlement,t.year4_settlement,t.`status`,t.create_by,t.create_time,t.update_by,t.update_time,t.del_flag,tk.`name` as taskName,d.dept_name as deptName, d.parent_id as parentId, pd.dept_name as parentName, u.nick_name as userName
+        FROM  t_reporting_table_station t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        LEFT JOIN sys_user u on t.create_by = u.user_name
+        where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 3)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="projectStatus != null "> and t.project_status = #{projectStatus}</if>
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        UNION ALL
+        SELECT NULL AS id, NULL AS task_id, t.dept_id, NULL AS project_status,NULL AS project_type, '' AS `name`, 5 AS situation, SUM(t.quantity) AS quantity, NULL AS content_progress, SUM(t.investment) AS investment, SUM(t.completed_settlement) AS completed_settlement, SUM(t.actual_settlement) AS actual_settlement, NULL AS details, SUM(t.expected_settlement) AS expected_settlement, SUM(t.audit_settlement) AS audit_settlement, NULL AS audit_description, SUM(t.year1_settlement) AS year1_settlement, SUM(t.year2_settlement) AS year2_settlement, SUM(t.year3_settlement) AS year3_settlement, SUM(t.year4_settlement) AS year4_settlement, NULL AS `status`, NULL AS create_by, NOW() AS create_time, NULL AS update_by, NULL AS update_time, NULL AS del_flag, NULL AS taskName, CONCAT(d.dept_name, '合计') AS deptName, NULL AS parentId, NULL AS parentName, NULL as userName
+        FROM  t_reporting_table_station t
+        LEFT JOIN t_reporting_task tk on t.task_id = tk.id
+        LEFT JOIN sys_dept d on t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on d.parent_id = pd.dept_id
+        where t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 3)
+        <if test="taskId != null "> and t.task_id = #{taskId}</if>
+        <if test="deptId != null "> and t.dept_id = #{deptId}</if>
+        <if test="projectStatus != null "> and t.project_status = #{projectStatus}</if>
+        <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+        <if test="status != null "> and t.status = #{status}</if>
+        <if test="parentId != null "> and d.parent_id = #{parentId}</if>
+        <if test="selectType != null and selectType == 2"> and t.status != 1  </if>
+        <if test="selectType != null and selectType == 3"> and (t.status = 3 or  t.status = 5 or  t.status = 6) </if>
+        <if test="deptIds != null and deptIds.size() > 0">
+            and t.dept_id in
+            <foreach item="id" collection="deptIds" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        GROUP BY t.dept_id
+        ORDER BY dept_id, create_time
+    </select>
+
+    <select id="selectTableStationById" parameterType="Long" resultMap="TableStationResult">
+            <include refid="selectTableStationVo"/>
+            where t.id = #{id}
+    </select>
+
+    <select id="budgetSummaryList" resultMap="TableStationResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(quantity) as quantity,SUM(actual_settlement) as actual_settlement,SUM(expected_settlement) as expected_settlement
+        FROM  `t_reporting_table_station` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 3)
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList2" resultMap="TableStationResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(quantity) as quantity,SUM(actual_settlement) as actual_settlement,SUM(expected_settlement) as expected_settlement, SUM(CASE WHEN t.status = 2 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_station` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 3)
+        and t.status != 1 and  t.status != 4
+        GROUP BY d.parent_id
+    </select>
+
+    <select id="budgetSummaryList3" resultMap="TableStationResult">
+        SELECT d.parent_id as parentId,pd.dept_id,pd.dept_name as deptName,SUM(quantity) as quantity,SUM(actual_settlement) as actual_settlement,SUM(expected_settlement) as expected_settlement, SUM(CASE WHEN t.status = 3 THEN 1 ELSE 0 END) AS reportNumber
+        FROM  `t_reporting_table_station` t
+        LEFT JOIN sys_dept d on  t.dept_id = d.dept_id
+        LEFT JOIN sys_dept pd on  d.parent_id = pd.dept_id
+        where t.task_id = #{taskId} and t.del_flag = '0' and t.dept_id in (SELECT dept_id from t_budget_item_dept where item_id = 3)
+        and (t.status = 3 or  t.status = 5)
+        GROUP BY d.parent_id
+    </select>
+
+    <insert id="insertTableStation" parameterType="TableStation" useGeneratedKeys="true" keyProperty="id">
+        insert into t_reporting_table_station
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">task_id,</if>
+            <if test="deptId != null">dept_id,</if>
+            <if test="projectStatus != null">project_status,</if>
+            <if test="projectType != null">project_type,</if>
+            <if test="name != null">name,</if>
+            <if test="situation != null">situation,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="contentProgress != null">content_progress,</if>
+            <if test="investment != null">investment,</if>
+            <if test="completedSettlement != null">completed_settlement,</if>
+            <if test="actualSettlement != null">actual_settlement,</if>
+            <if test="details != null">details,</if>
+            <if test="expectedSettlement != null">expected_settlement,</if>
+            <if test="auditSettlement != null">audit_settlement,</if>
+            <if test="auditDescription != null">audit_description,</if>
+            <if test="year1Settlement != null">year1_settlement,</if>
+            <if test="year2Settlement != null">year2_settlement,</if>
+            <if test="year3Settlement != null">year3_settlement,</if>
+            <if test="year4Settlement != null">year4_settlement,</if>
+            <if test="status != null">status,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">#{taskId},</if>
+            <if test="deptId != null">#{deptId},</if>
+            <if test="projectStatus != null">#{projectStatus},</if>
+            <if test="projectType != null">#{projectType},</if>
+            <if test="name != null">#{name},</if>
+            <if test="situation != null">#{situation},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="contentProgress != null">#{contentProgress},</if>
+            <if test="investment != null">#{investment},</if>
+            <if test="completedSettlement != null">#{completedSettlement},</if>
+            <if test="actualSettlement != null">#{actualSettlement},</if>
+            <if test="details != null">#{details},</if>
+            <if test="expectedSettlement != null">#{expectedSettlement},</if>
+            <if test="auditSettlement != null">#{auditSettlement},</if>
+            <if test="auditDescription != null">#{auditDescription},</if>
+            <if test="year1Settlement != null">#{year1Settlement},</if>
+            <if test="year2Settlement != null">#{year2Settlement},</if>
+            <if test="year3Settlement != null">#{year3Settlement},</if>
+            <if test="year4Settlement != null">#{year4Settlement},</if>
+            <if test="status != null">#{status},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+        </trim>
+    </insert>
+
+    <update id="updateTableStation" parameterType="TableStation">
+        update t_reporting_table_station
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="taskId != null">task_id = #{taskId},</if>
+            <if test="deptId != null">dept_id = #{deptId},</if>
+            <if test="projectStatus != null">project_status = #{projectStatus},</if>
+            <if test="projectType != null">project_type = #{projectType},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="situation != null">situation = #{situation},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="contentProgress != null">content_progress = #{contentProgress},</if>
+            <if test="investment != null">investment = #{investment},</if>
+            <if test="completedSettlement != null">completed_settlement = #{completedSettlement},</if>
+            <if test="actualSettlement != null">actual_settlement = #{actualSettlement},</if>
+            <if test="details != null">details = #{details},</if>
+            <if test="expectedSettlement != null">expected_settlement = #{expectedSettlement},</if>
+            <if test="auditSettlement != null">audit_settlement = #{auditSettlement},</if>
+            <if test="auditDescription != null">audit_description = #{auditDescription},</if>
+            <if test="year1Settlement != null">year1_settlement = #{year1Settlement},</if>
+            <if test="year2Settlement != null">year2_settlement = #{year2Settlement},</if>
+            <if test="year3Settlement != null">year3_settlement = #{year3Settlement},</if>
+            <if test="year4Settlement != null">year4_settlement = #{year4Settlement},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteTableStationById">
+        update t_reporting_table_station
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteTableStationByIds">
+        update t_reporting_table_station
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="net.cmkj.fixed.mapper.WagesSubjectMapper">
+
+    <resultMap type="WagesSubject" id="WagesSubjectResult">
+        <result property="id"    column="id"    />
+        <result property="name"    column="name"    />
+        <result property="field"    column="field"    />
+        <result property="type"    column="type"    />
+    </resultMap>
+
+    <sql id="selectWagesSubjectVo">
+        SELECT t.id,t.NAME,t.field,t.type ,s.`name` as typeName,s.type as subjectType,s.id  as subjectId
+        FROM  t_wages_subject t
+        LEFT JOIN t_budget_subject s on t.type = s.id
+    </sql>
+
+    <select id="selectWagesSubjectList" parameterType="WagesSubject" resultMap="WagesSubjectResult">
+        <include refid="selectWagesSubjectVo"/>
+        <where>
+            <if test="name != null  and name != ''"> and t.name like concat('%', #{name}, '%')</if>
+            <if test="field != null  and field != ''"> and t.field = #{field}</if>
+            <if test="type != null  and type != ''"> and t.type = #{type}</if>
+        </where>
+    </select>
+
+    <select id="selectWagesSubjectById" parameterType="Integer" resultMap="WagesSubjectResult">
+        <include refid="selectWagesSubjectVo"/>
+        where t.id = #{id}
+    </select>
+
+    <insert id="insertWagesSubject" parameterType="WagesSubject" useGeneratedKeys="true" keyProperty="id">
+        insert into t_wages_subject
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null">name,</if>
+            <if test="field != null">field,</if>
+            <if test="type != null">type,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="name != null">#{name},</if>
+            <if test="field != null">#{field},</if>
+            <if test="type != null">#{type},</if>
+        </trim>
+    </insert>
+
+    <update id="updateWagesSubject" parameterType="WagesSubject">
+        update t_wages_subject
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="type != null">type = #{type},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWagesSubjectById">
+        update t_wages_subject
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id = #{id}
+    </delete>
+
+    <delete id="deleteWagesSubjectByIds">
+        update t_wages_subject
+        set del_flag = '2' , update_by = #{userName}, update_time = SYSDATE()
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
