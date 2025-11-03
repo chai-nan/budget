@@ -1,0 +1,13 @@
+net\cmkj\generator\mapper\GenTableMapper.class
+net\cmkj\generator\service\GenTableColumnServiceImpl.class
+net\cmkj\generator\service\GenTableServiceImpl.class
+net\cmkj\generator\util\VelocityInitializer.class
+net\cmkj\generator\domain\GenTable.class
+net\cmkj\generator\service\IGenTableColumnService.class
+net\cmkj\generator\util\GenUtils.class
+net\cmkj\generator\service\IGenTableService.class
+net\cmkj\generator\mapper\GenTableColumnMapper.class
+net\cmkj\generator\controller\GenController.class
+net\cmkj\generator\util\VelocityUtils.class
+net\cmkj\generator\config\GenConfig.class
+net\cmkj\generator\domain\GenTableColumn.class
